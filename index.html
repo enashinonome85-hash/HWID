@@ -368,8 +368,18 @@ function cerrarAgregar() {
     document.getElementById("cajaAgregar").classList.remove("visible");
 }
 
+// Función para verificar si un HWID/UUID ya existe
+function existeHWID(valor) {
+    return codigos.includes(valor);
+}
+
 // Nueva función para agregar respetando columnas y filas
 function agregarEnColumna(valor, colIndex) {
+    if (existeHWID(valor)) {
+        alert("Este HWID/UUID ya está registrado.");
+        return false;
+    }
+
     const numColumnas = nombresColumnas.length;
     const totalFilas = Math.ceil(codigos.length / numColumnas);
 
@@ -401,6 +411,7 @@ function agregarEnColumna(valor, colIndex) {
     codigos = nuevaLista;
     localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
     actualizarLista();
+    return true;
 }
 
 function agregarAHWID() {
@@ -411,9 +422,10 @@ function agregarAHWID() {
         alert("HWID/UUID vacío");
         return;
     }
-    agregarEnColumna(valor, colIndex);
-    input.value = "";
-    cerrarAgregar();
+    if (agregarEnColumna(valor, colIndex)) {
+        input.value = "";
+        cerrarAgregar();
+    }
 }
 
 function agregarDirecto() {
@@ -423,8 +435,9 @@ function agregarDirecto() {
         alert("HWID/UUID vacío");
         return;
     }
-    agregarEnColumna(valor, colIndex);
-    document.getElementById("inputAgregarDirecto").value = "";
+    if (agregarEnColumna(valor, colIndex)) {
+        document.getElementById("inputAgregarDirecto").value = "";
+    }
 }
 
 function eliminarCodigo(i) {
@@ -434,7 +447,6 @@ function eliminarCodigo(i) {
         alert("Contraseña incorrecta");
         return;
     }
-    // En lugar de eliminar el elemento, lo vaciamos para mantener estructura
     codigos[i] = "";
     localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
     actualizarLista();
