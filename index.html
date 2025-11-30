@@ -61,9 +61,9 @@ button:hover { background: #3498db; }
 
 /* Caja flotante */
 .caja-flotante {
-    width: 380px;
-    max-width: 90%;
-    max-height: 320px;
+    width: 90%;
+    max-width: 1200px;
+    max-height: 400px;
     background: var(--panel-bg);
     padding: 20px;
     border-radius: 15px;
@@ -77,6 +77,7 @@ button:hover { background: #3498db; }
     box-shadow: 0px 0px 20px #000;
     opacity: 0;
     transition: opacity .3s ease;
+    overflow-x: auto;
 }
 
 .caja-flotante.visible { display: block; opacity: 1; }
@@ -95,34 +96,26 @@ button:hover { background: #3498db; }
 }
 
 .lista-scroll {
-    max-height: 230px;
-    overflow-y: auto;
-    margin-top: 35px;
+    overflow-x: auto;
+    margin-top: 10px;
 }
 
-.item {
-    margin: 6px 0;
-    padding: 6px;
-    background: var(--bg-overlay);
-    border-radius: 6px;
-}
+/* Tabla de columnas */
+.tabla { display: flex; flex-direction: column; width: 100%; }
+.fila { display: flex; }
+.columna { flex: 1; min-width: 150px; padding: 6px; border-bottom: 1px solid rgba(0,0,0,0.2); word-break: break-word; text-align: center; }
+.encabezado .columna { font-weight: bold; background: var(--bg-overlay); }
 
 .delBtn {
     background-color: red;
     color: white;
     border: none;
-    padding: 5px 10px;
-    font-size: 14px;
+    padding: 4px 8px;
+    font-size: 12px;
     cursor: pointer;
-    border-radius: 5px;
-}
-
-.lista-scroll::-webkit-scrollbar {
-    width: 8px;
-}
-.lista-scroll::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.4);
-    border-radius: 3px;
+    border-radius: 4px;
+    display: block;
+    margin: 5px auto 0;
 }
 
 /* Mensaje de bienvenida */
@@ -242,8 +235,12 @@ body.dark #switchTema .toggle {
 
 <div id="listaFlotante" class="caja-flotante">
     <button class="closeBtn" onclick="toggleLista()">X</button>
-    <h3>HWID / UUID guardados</h3>
-    <div id="lista" class="lista-scroll"></div>
+    <div id="lista" class="lista-scroll">
+        <div class="tabla">
+            <div class="fila encabezado" id="encabezadoColumnas"></div>
+            <div id="filasHWID"></div>
+        </div>
+    </div>
 </div>
 
 <hr>
@@ -257,18 +254,51 @@ body.dark #switchTema .toggle {
 const CONTRASENA = "torneo2025";
 
 let codigos = JSON.parse(localStorage.getItem("codigosGuardados")) || [];
-const listaDiv = document.getElementById("lista");
-const listaFlotante = document.getElementById("listaFlotante");
-const toggleBtn = document.getElementById("toggleBtn");
-const switchText = document.getElementById("switchText");
+const nombresColumnas = [
+  "STELLARA","DINGOS GHOST",":STEAMDANCE:","4LOV","LAS MALCRIADAS","ANGELS APOCALYPTIC",
+  "Las Ohño","Woosh Girls","Blackyard Queens","BELLATRIX","PANDORA'S HORDE",
+  "Super Stars","The show girls","D' la rose","Las Quecas","HOA","Los Trabas","Infinity Girls"
+];
+
+let columnaSeleccionada = 0;
+
+function escapeHtml(text){ return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
+function crearEncabezado() {
+    const encabezadoDiv = document.getElementById("encabezadoColumnas");
+    encabezadoDiv.innerHTML = "";
+    nombresColumnas.forEach((nombre, index) => {
+        const col = document.createElement("div");
+        col.className = "columna";
+        col.innerHTML = `${escapeHtml(nombre)}<br><button onclick="seleccionarColumna(${index})">Comparar</button>`;
+        encabezadoDiv.appendChild(col);
+    });
+}
+crearEncabezado();
 
 function actualizarLista() {
-    if (codigos.length === 0) { listaDiv.innerHTML = "No hay HWID/UUID guardados."; return; }
-    listaDiv.innerHTML = codigos.map((c,i)=>`
-        <div class="item">
-            ${escapeHtml(c)}
-            <button class="delBtn" onclick="eliminarCodigo(${i})">Eliminar</button>
-        </div>`).join("");
+    const filasDiv = document.getElementById("filasHWID");
+    filasDiv.innerHTML = "";
+    if(codigos.length === 0){
+        filasDiv.innerHTML = `<div class="fila"><div class="columna" colspan="${nombresColumnas.length}">No hay HWID/UUID guardados.</div></div>`;
+        return;
+    }
+    const totalCols = nombresColumnas.length;
+    const totalFilas = Math.ceil(codigos.length / totalCols);
+    for(let i=0; i<totalFilas; i++){
+        const fila = document.createElement("div");
+        fila.className = "fila";
+        for(let j=0; j<totalCols; j++){
+            const index = i*totalCols+j;
+            const codigo = codigos[index] || "";
+            const boton = codigo ? `<button class="delBtn" onclick="eliminarCodigo(${index})">Eliminar</button>` : "";
+            const col = document.createElement("div");
+            col.className = "columna";
+            col.innerHTML = escapeHtml(codigo) + boton;
+            fila.appendChild(col);
+        }
+        filasDiv.appendChild(fila);
+    }
 }
 actualizarLista();
 
@@ -282,20 +312,10 @@ function guardarCodigo() {
     actualizarLista();
 }
 
-function verificar() {
-    const c = document.getElementById("codigoVerificar").value.trim();
-    const r = document.getElementById("resultado");
-    if(codigos.includes(c)) { r.textContent="Correcto: HWID/UUID verificado"; r.style.color="lime"; }
-    else { r.textContent="Incorrecto: este HWID/UUID no está registrado"; r.style.color="red"; }
-}
-
 function eliminarCodigo(i) {
     const input = prompt("Ingrese la contraseña para eliminar este HWID/UUID:");
-    if (input === null) return; // Canceló
-    if (input !== CONTRASENA) {
-        alert("Contraseña incorrecta. No se eliminó el HWID/UUID.");
-        return;
-    }
+    if (input === null) return;
+    if(input!==CONTRASENA){ alert("Contraseña incorrecta. No se eliminó el HWID/UUID."); return; }
     codigos.splice(i,1);
     localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
     actualizarLista();
@@ -304,26 +324,42 @@ function eliminarCodigo(i) {
 let listaVisible=false;
 function toggleLista() {
     listaVisible=!listaVisible;
-    listaFlotante.classList.toggle("visible", listaVisible);
-    toggleBtn.textContent = listaVisible ? "Lista abierta" : "Mostrar lista";
+    document.getElementById("listaFlotante").classList.toggle("visible", listaVisible);
+    document.getElementById("toggleBtn").textContent = listaVisible ? "Lista abierta" : "Mostrar lista";
 }
 
-// Modo Claro/Oscuro
-const switchTema = document.getElementById("switchTema");
-function toggleTema() {
+function seleccionarColumna(col){
+    columnaSeleccionada = col;
+    alert("Columna seleccionada para verificación: " + nombresColumnas[col]);
+}
+
+function verificar(){
+    const c = document.getElementById("codigoVerificar").value.trim();
+    const r = document.getElementById("resultado");
+    const colHWIDs = codigos.filter((_,i)=> i%nombresColumnas.length === columnaSeleccionada);
+    if(colHWIDs.includes(c)){
+        r.textContent = "✔ Correcto: HWID/UUID verificado en la columna " + nombresColumnas[columnaSeleccionada];
+        r.style.color = "lime";
+    }else{
+        r.textContent = "✘ Incorrecto: no se encontró en la columna " + nombresColumnas[columnaSeleccionada];
+        r.style.color = "red";
+    }
+}
+
+// Modo oscuro/claro
+function toggleTema(){
     document.body.classList.toggle("dark");
-    switchText.textContent = document.body.classList.contains("dark") ? "Modo Oscuro" : "Modo Claro";
+    document.getElementById("switchText").textContent = document.body.classList.contains("dark") ? "Modo Oscuro" : "Modo Claro";
 }
 
 // Mensaje bienvenida
-window.onload = function() {
+window.onload = function(){
     const bienvenida=document.getElementById("bienvenida");
     bienvenida.classList.add("visible");
     setTimeout(()=>cerrarBienvenida(),5000);
 }
-function cerrarBienvenida() { document.getElementById("bienvenida").classList.remove("visible"); }
-
-function escapeHtml(text){ return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function cerrarBienvenida(){ document.getElementById("bienvenida").classList.remove("visible"); }
 </script>
+
 </body>
 </html>
