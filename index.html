@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Verificación de HWID y UUID</title>
 <style>
 :root {
@@ -10,43 +10,35 @@
     --panel-bg: rgba(255, 255, 255, 0.85);
     --text-color: #111;
 }
-
 body.dark {
     --bg-overlay: rgba(0, 0, 0, 0.45);
     --panel-bg: rgba(0, 0, 0, 0.75);
     --text-color: #fff;
 }
-
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
     color: var(--text-color);
-    text-align: center;
     background-image: url('20240731_073957.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
 }
-
-h1, h2 { text-shadow: 2px 2px 6px rgba(0,0,0,.4); }
-
+h1,h2 { text-shadow: 2px 2px 6px rgba(0,0,0,.4); }
 input, select {
     padding: 10px;
-    width: 100%;
-    max-width: 280px;
+    width: 280px;
     font-size: 16px;
     border-radius: 8px;
     border: none;
     outline: none;
     background: var(--panel-bg);
     color: var(--text-color);
-    margin: 6px 0;
 }
-
 button {
     padding: 10px 18px;
     font-size: 16px;
-    margin: 8px 0;
+    margin-top: 10px;
     cursor: pointer;
     border-radius: 8px;
     border: none;
@@ -55,14 +47,11 @@ button {
     font-weight: bold;
     transition: .2s;
 }
-
 button:hover { background: #3498db; }
-
-#resultado, #resultadoAgregar { margin-top: 10px; font-size: 18px; font-weight: bold; min-height: 24px; }
-
+#resultado, #resultadoAgregar { margin-top: 12px; font-size: 18px; font-weight: bold; min-height: 24px; }
 .caja-flotante {
-    width: 90%;
-    max-width: 450px;
+    width: 95%;
+    max-width: 500px;
     background: var(--panel-bg);
     padding: 20px;
     border-radius: 15px;
@@ -78,9 +67,7 @@ button:hover { background: #3498db; }
     transition: opacity .3s ease, transform .3s ease;
     z-index: 9999;
 }
-
-.caja-flotante.visible { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
-
+.caja-flotante.visible { display: block; opacity:1; transform:translate(-50%, -50%) scale(1);}
 .closeBtn {
     background: #c0392b;
     border: none;
@@ -93,145 +80,107 @@ button:hover { background: #3498db; }
     top: 12px;
     right: 12px;
 }
-
 .lista-scroll {
     overflow-x: auto;
     margin-top: 10px;
 }
-
-/* Tabla de columnas */
-.tabla { display: flex; flex-direction: column; width: 100%; border: 1px solid rgba(0,0,0,0.2); border-radius: 8px; overflow: hidden; }
-.fila { display: flex; border-bottom: 1px solid rgba(0,0,0,0.2); }
-.columna { flex: 1; min-width: 150px; padding: 8px; word-break: break-word; text-align: center; border-right: 1px solid rgba(0,0,0,0.2); }
-.columna:last-child { border-right: none; }
+.tabla { display: flex; flex-direction: column; width: 100%; }
+.fila { display: flex; border-bottom:1px solid rgba(0,0,0,.2);}
+.columna { flex: 1; min-width: 150px; padding: 6px; word-break: break-word; text-align: center; }
 .encabezado .columna { font-weight: bold; background: var(--bg-overlay); }
-
-.delBtn {
-    background-color: red;
-    color: white;
-    border: none;
-    padding: 4px 8px;
-    font-size: 12px;
-    cursor: pointer;
-    border-radius: 4px;
-    display: block;
-    margin: 5px auto 0;
-}
-
-/* Footer fijo */
-#footerText {
+.delBtn { background-color: red; color:white; border:none; padding:4px 8px; font-size:12px; cursor:pointer; border-radius:4px; display:block; margin:5px auto 0;}
+.bienvenida {
     position: fixed;
-    bottom: 20px;
-    left: 20px;
-    background: var(--bg-overlay);
-    padding: 8px 12px;
-    border-radius: 8px;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: var(--panel-bg);
     color: var(--text-color);
-    font-weight: bold;
-    font-size: 14px;
-    z-index: 999;
-}
-
-/* Interruptor tipo iOS */
-#switchContainer {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    padding: 25px 30px;
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0px 0px 20px #000;
+    text-align: center;
+    width: 320px; max-width:90%;
+    opacity:0; pointer-events:none;
+    transition: opacity .4s ease, transform .4s ease;
     z-index: 9999;
 }
-
-#switchText { margin-bottom: 6px; font-weight: bold; color: var(--text-color); }
-
+.bienvenida.visible { opacity:1; transform:translate(-50%,-50%) scale(1); pointer-events:auto;}
+#switchContainer {
+    position: fixed; top:20px; right:20px;
+    display:flex; flex-direction:column; align-items:center; z-index:9999;
+}
+#switchText { margin-bottom:6px; font-weight:bold; color:var(--text-color);}
 #switchTema {
-    width: 60px;
-    height: 30px;
-    background: var(--panel-bg);
-    border-radius: 50px;
-    cursor: pointer;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.4);
-    display: flex;
-    align-items: center;
-    padding: 3px;
-    transition: background .3s ease, transform .3s ease;
+    width:60px; height:30px; background:var(--panel-bg); border-radius:50px; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.4);
+    display:flex; align-items:center; padding:3px; transition: background .3s ease, transform .3s ease;
 }
-
-#switchTema .toggle {
-    width: 24px;
-    height: 24px;
-    background: var(--text-color);
-    border-radius: 50%;
-    transition: transform .3s ease, background .3s ease;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+#switchTema .toggle { width:24px; height:24px; background:var(--text-color); border-radius:50%; transition: transform .3s ease, background .3s ease; box-shadow:0 2px 5px rgba(0,0,0,0.3);}
+body.dark #switchTema .toggle { transform: translateX(30px);}
+#switchTema:hover { transform: scale(1.1);}
+@media(max-width:600px){
+    #switchContainer { top:auto; bottom:20px; right:20px;}
+    #switchTema { width:50px; height:26px; padding:2px;}
+    #switchTema .toggle { width:20px; height:20px;}
+    body.dark #switchTema .toggle { transform: translateX(24px);}
+    #switchText { font-size:14px;}
 }
-
-body.dark #switchTema .toggle { transform: translateX(30px); }
-
-#switchTema:hover { transform: scale(1.1); }
-
-@media (max-width: 600px) {
-    #switchContainer { top: auto; bottom: 20px; right: 20px; }
-    #switchTema { width: 50px; height: 26px; padding: 2px; }
-    #switchTema .toggle { width: 20px; height: 20px; }
-    body.dark #switchTema .toggle { transform: translateX(24px); }
-    #switchText { font-size: 14px; }
-    .fila { flex-direction: column; }
-    .columna { border-right: none; border-bottom: 1px solid rgba(0,0,0,0.2); }
-    .columna:last-child { border-bottom: none; }
+#footerText {
+    position: fixed; bottom:20px; left:20px;
+    background: var(--bg-overlay); padding:8px 12px; border-radius:8px; color:var(--text-color); font-weight:bold; font-size:14px; z-index:999;
 }
 </style>
 </head>
 <body>
 
-<!-- Interruptor -->
 <div id="switchContainer">
     <div id="switchText">Modo Claro</div>
     <div id="switchTema" onclick="toggleTema()"><div class="toggle"></div></div>
 </div>
 
-<h1>Verificación de HWID y UUID</h1>
+<div id="bienvenida" class="bienvenida">
+    <h2>¡Bienvenido!</h2>
+    <p>Gracias por usar el verificador de HWID / UUID.</p>
+    <button onclick="cerrarBienvenida()">Cerrar</button>
+</div>
 
+<h1>Verificación de HWID y UUID</h1>
 <h2>🔎 Verificar HWID / UUID</h2>
-<input id="codigoVerificar" placeholder="Ingresa HWID o UUID" />
-<br>
+<input id="codigoVerificar" placeholder="Ingresa HWID o UUID"><br><br>
 <label for="columnaSeleccion">Selecciona columna para verificar:</label>
 <select id="columnaSeleccion"></select>
-<br>
 <button onclick="verificar()">Verificar</button>
 <div id="resultado"></div>
-
 <hr>
-
 <h2>📌 Agregar HWID / UUID</h2>
-<input id="inputAgregarDirecto" placeholder="Ingresa HWID/UUID" />
-<br>
+<input id="inputAgregarDirecto" placeholder="Ingresa HWID/UUID"><br><br>
 <label for="columnaAgregarDirecto">Selecciona columna:</label>
-<select id="columnaAgregarDirecto"></select>
-<br>
+<select id="columnaAgregarDirecto"></select><br><br>
 <button onclick="agregarDirecto()">Agregar</button>
-<div id="resultadoAgregar"></div>
-
-<br>
+<div id="resultadoAgregar"></div><br>
 <button onclick="abrirAgregar()">Agregar con caja flotante</button>
 
 <div id="cajaAgregar" class="caja-flotante">
     <button class="closeBtn" onclick="cerrarAgregar()">X</button>
     <h3>Agregar HWID / UUID</h3>
-    <input id="inputAgregar" placeholder="Ingresa HWID/UUID" />
-    <br>
+    <input id="inputAgregar" placeholder="Ingresa HWID/UUID"><br><br>
     <label for="columnaAgregar">Selecciona columna:</label>
-    <select id="columnaAgregar"></select>
-    <br>
+    <select id="columnaAgregar"></select><br><br>
     <button onclick="agregarAHWID()">Agregar</button>
 </div>
 
-<br>
-<button id="toggleBtn" onclick="toggleLista()">Mostrar lista</button>
+<br><button id="toggleBtn" onclick="toggleLista()">Mostrar lista</button>
 
+<!-- Caja flotante lista con selector de columna -->
 <div id="listaFlotante" class="caja-flotante">
     <button class="closeBtn" onclick="toggleLista()">X</button>
+    <div style="margin-bottom: 10px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; align-items:center;">
+        <label for="filtroColumna">Mostrar columna:</label>
+        <select id="filtroColumna" onchange="actualizarLista()">
+            <option value="-1">Todas</option>
+        </select>
+        <button onclick="toggleTodasColumnas()">Alternar Todas/Una</button>
+    </div>
     <div id="lista" class="lista-scroll">
         <div class="tabla">
             <div class="fila encabezado" id="encabezadoColumnas"></div>
@@ -246,94 +195,46 @@ body.dark #switchTema .toggle { transform: translateX(30px); }
 const CONTRASENA = "torneo2025";
 let codigos = JSON.parse(localStorage.getItem("codigosGuardados")) || [];
 const nombresColumnas = [
-    "STELLARA","DINGOS GHOST",":STEAMDANCE:","4LOV","LAS MALCRIADAS",
-    "ANGELS APOCALYPTIC","Las Ohño","Woosh Girls","Blackyard Queens",
-    "BELLATRIX","PANDORA'S HORDE","Super Stars","The show girls",
-    "D' la rose","Las Quecas","HOA","Los Trabas","Infinity Girls"
+    "STELLARA","DINGOS GHOST",":STEAMDANCE:","4LOV","LAS MALCRIADAS","ANGELS APOCALYPTIC",
+    "Las Ohño","Woosh Girls","Blackyard Queens","BELLATRIX","PANDORA'S HORDE","Super Stars",
+    "The show girls","D' la rose","Las Quecas","HOA","Los Trabas","Infinity Girls"
 ];
 
-// Escapar HTML
 function escapeHtml(text){return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 
-// Inicializar selects
-["columnaSeleccion","columnaAgregar","columnaAgregarDirecto"].forEach(id=>{
-    const sel = document.getElementById(id);
-    sel.innerHTML = "";
-    nombresColumnas.forEach((nombre,index)=>{
-        const opt=document.createElement("option");
-        opt.value=index;
-        opt.textContent=nombre;
-        sel.appendChild(opt);
+// Selects para agregar/verificar
+const selector = document.getElementById("columnaSeleccion");
+const selectorAgregar = document.getElementById("columnaAgregar");
+const selectorAgregarDirecto = document.getElementById("columnaAgregarDirecto");
+const filtroColumna = document.getElementById("filtroColumna");
+
+nombresColumnas.forEach((nombre,index)=>{
+    [selector,selectorAgregar,selectorAgregarDirecto].forEach(sel=>{
+        const opt=document.createElement("option"); opt.value=index; opt.textContent=nombre; sel.appendChild(opt);
     });
+    const optFiltro = document.createElement("option"); optFiltro.value=index; optFiltro.textContent=nombre; filtroColumna.appendChild(optFiltro);
 });
 
-// Crear encabezado de la tabla
-function crearEncabezado(){
-    const encabezadoDiv=document.getElementById("encabezadoColumnas");
-    encabezadoDiv.innerHTML="";
-    nombresColumnas.forEach(nombre=>{
-        const col=document.createElement("div");
-        col.className="columna";
-        col.innerHTML=escapeHtml(nombre);
-        encabezadoDiv.appendChild(col);
-    });
-}
-crearEncabezado();
-
-// Actualizar lista
-function actualizarLista(){
-    const filasDiv=document.getElementById("filasHWID");
-    filasDiv.innerHTML="";
-    if(codigos.length===0){
-        filasDiv.innerHTML=`<div class="fila"><div class="columna" colspan="${nombresColumnas.length}">No hay HWID/UUID guardados.</div></div>`;
-        return;
-    }
-    const totalCols=nombresColumnas.length;
-    const totalFilas=Math.ceil(codigos.length/totalCols);
-    for(let i=0;i<totalFilas;i++){
-        const fila=document.createElement("div");
-        fila.className="fila";
-        for(let j=0;j<totalCols;j++){
-            const index=i*totalCols+j;
-            const codigo=codigos[index]||"";
-            const boton=codigo?`<button class="delBtn" onclick="eliminarCodigo(${index})">Eliminar</button>`:"";
-            const col=document.createElement("div");
-            col.className="columna";
-            col.innerHTML=escapeHtml(codigo)+boton;
-            fila.appendChild(col);
-        }
-        filasDiv.appendChild(fila);
-    }
-}
-actualizarLista();
-
-// Caja flotante
-function abrirAgregar(){document.getElementById("cajaAgregar").classList.add("visible");document.getElementById("inputAgregar").focus();}
+// Caja flotante agregar
+function abrirAgregar(){document.getElementById("cajaAgregar").classList.add("visible");}
 function cerrarAgregar(){document.getElementById("cajaAgregar").classList.remove("visible");}
 
-// Verificar si existe
+// Verificación
 function existeHWID(valor){return codigos.includes(valor);}
-
-// Agregar en columna
 function agregarEnColumna(valor,colIndex){
     const resultadoAgregarDiv=document.getElementById("resultadoAgregar");
-    resultadoAgregarDiv.textContent="";resultadoAgregarDiv.style.color="";
-    if(existeHWID(valor)){
-        resultadoAgregarDiv.textContent="✘ Este HWID/UUID ya está registrado.";
-        resultadoAgregarDiv.style.color="red"; return false;
-    }
-    const numCol=nombresColumnas.length;
-    const totalFilas=Math.ceil(codigos.length/numCol);
+    resultadoAgregarDiv.textContent=""; resultadoAgregarDiv.style.color="";
+    if(existeHWID(valor)){resultadoAgregarDiv.textContent="✘ Este HWID/UUID ya está registrado.";resultadoAgregarDiv.style.color="red";return false;}
+    const numColumnas=nombresColumnas.length;
+    const totalFilas=Math.ceil(codigos.length/numColumnas);
     let nuevaLista=codigos.slice();
     let insertIndex=-1;
     for(let fila=0;fila<totalFilas;fila++){
-        const idx=fila*numCol+colIndex;
-        if(idx>=nuevaLista.length||!nuevaLista[idx]){
-            insertIndex=idx; break;
-        }
+        const idx=fila*numColumnas+colIndex;
+        if(idx>=nuevaLista.length||!nuevaLista[idx]){insertIndex=idx;break;}
     }
-    if(insertIndex===-1) insertIndex=totalFilas*numCol+colIndex;
-    while(nuevaLista.length<insertIndex) nuevaLista.push("");
+    if(insertIndex===-1){insertIndex=totalFilas*numColumnas+colIndex;}
+    while(nuevaLista.length<insertIndex){nuevaLista.push("");}
     nuevaLista[insertIndex]=valor;
     codigos=nuevaLista;
     localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
@@ -342,61 +243,84 @@ function agregarEnColumna(valor,colIndex){
     resultadoAgregarDiv.style.color="lime";
     return true;
 }
+function agregarAHWID(){const input=document.getElementById("inputAgregar");const valor=input.value.trim();const colIndex=parseInt(document.getElementById("columnaAgregar").value);if(!valor){alert("HWID/UUID vacío");return;}if(agregarEnColumna(valor,colIndex)){input.value="";cerrarAgregar();}}
+function agregarDirecto(){const valor=document.getElementById("inputAgregarDirecto").value.trim();const colIndex=parseInt(document.getElementById("columnaAgregarDirecto").value);if(!valor){alert("HWID/UUID vacío");return;}if(agregarEnColumna(valor,colIndex)){document.getElementById("inputAgregarDirecto").value="";}}
 
-// Funciones agregar
-function agregarAHWID(){
-    const valor=document.getElementById("inputAgregar").value.trim();
-    const colIndex=parseInt(document.getElementById("columnaAgregar").value);
-    if(!valor){alert("HWID/UUID vacío");return;}
-    if(agregarEnColumna(valor,colIndex)){document.getElementById("inputAgregar").value="";cerrarAgregar();}
-}
-function agregarDirecto(){
-    const valor=document.getElementById("inputAgregarDirecto").value.trim();
-    const colIndex=parseInt(document.getElementById("columnaAgregarDirecto").value);
-    if(!valor){alert("HWID/UUID vacío");return;}
-    agregarEnColumna(valor,colIndex);
-    document.getElementById("inputAgregarDirecto").value="";
-}
-
-// Eliminar
 function eliminarCodigo(i){
-    const input=prompt("Ingrese la contraseña para eliminar este HWID/UUID:");
-    if(input===null) return;
-    if(input!==CONTRASENA){alert("Contraseña incorrecta");return;}
-    codigos[i]="";
-    localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
+    const input = prompt("Ingrese la contraseña para eliminar este HWID/UUID:");
+    if(input===null)return;
+    if(input!==CONTRASENA){alert("Contraseña incorrecta"); return;}
+    codigos[i]=""; localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
     actualizarLista();
 }
 
-// Toggle lista flotante
-let listaVisible=false;
+let listaVisible=false; let mostrarTodasColumnas=true; let ultimaColumnaSeleccionada=-1;
+
 function toggleLista(){
     listaVisible=!listaVisible;
     document.getElementById("listaFlotante").classList.toggle("visible",listaVisible);
     document.getElementById("toggleBtn").textContent=listaVisible?"Lista abierta":"Mostrar lista";
+    if(listaVisible && ultimaColumnaSeleccionada>=0) filtroColumna.value=ultimaColumnaSeleccionada;
+    actualizarLista();
 }
 
-// Verificar HWID/UUID
+function toggleTodasColumnas(){
+    mostrarTodasColumnas=!mostrarTodasColumnas;
+    filtroColumna.value=mostrarTodasColumnas?-1:0;
+    actualizarLista();
+}
+
+function actualizarLista(){
+    const filasDiv=document.getElementById("filasHWID");
+    filasDiv.innerHTML="";
+    const filtro=parseInt(filtroColumna.value);
+    if(filtro>=0) ultimaColumnaSeleccionada=filtro;
+    const totalCols=nombresColumnas.length;
+    const totalFilas=Math.ceil(codigos.length/totalCols);
+    const columnasVisibles=(filtro>=0)?[filtro]:nombresColumnas.map((_,i)=>i);
+    // Encabezado
+    const encabezadoDiv=document.getElementById("encabezadoColumnas");
+    encabezadoDiv.innerHTML="";
+    columnasVisibles.forEach(i=>{
+        const col=document.createElement("div"); col.className="columna"; col.innerHTML=escapeHtml(nombresColumnas[i]); encabezadoDiv.appendChild(col);
+    });
+    if(codigos.length===0){
+        const fila=document.createElement("div"); fila.className="fila";
+        const col=document.createElement("div"); col.className="columna"; col.style.flex=columnasVisibles.length; col.textContent="No hay HWID/UUID guardados."; fila.appendChild(col); filasDiv.appendChild(fila); return;
+    }
+    for(let f=0;f<totalFilas;f++){
+        const fila=document.createElement("div"); fila.className="fila";
+        columnasVisibles.forEach(c=>{
+            const idx=f*totalCols+c;
+            const codigo=codigos[idx]||"";
+            const boton=codigo?`<button class="delBtn" onclick="eliminarCodigo(${idx})">Eliminar</button>`:"";
+            const col=document.createElement("div"); col.className="columna"; col.innerHTML=escapeHtml(codigo)+boton; fila.appendChild(col);
+        });
+        filasDiv.appendChild(fila);
+    }
+}
+
 function verificar(){
     const c=document.getElementById("codigoVerificar").value.trim();
     const r=document.getElementById("resultado");
     const colIndex=parseInt(document.getElementById("columnaSeleccion").value);
     const colHWIDs=codigos.filter((_,i)=>i%nombresColumnas.length===colIndex);
-    if(colHWIDs.includes(c)){
-        r.textContent="✔ Correcto: HWID/UUID verificado en "+nombresColumnas[colIndex];
-        r.style.color="lime";
-    } else {
-        r.textContent="✘ Incorrecto: no se encontró en "+nombresColumnas[colIndex];
-        r.style.color="red";
-    }
+    if(colHWIDs.includes(c)){r.textContent="✔ Correcto: HWID/UUID verificado en "+nombresColumnas[colIndex]; r.style.color="lime";}
+    else{r.textContent="✘ Incorrecto: no se encontró en "+nombresColumnas[colIndex]; r.style.color="red";}
 }
 
-// Toggle tema
 function toggleTema(){
     document.body.classList.toggle("dark");
     document.getElementById("switchText").textContent=document.body.classList.contains("dark")?"Modo Oscuro":"Modo Claro";
 }
 
+window.onload=function(){
+    document.getElementById("bienvenida").classList.add("visible");
+    setTimeout(cerrarBienvenida,5000);
+    actualizarLista();
+}
+
+function cerrarBienvenida(){document.getElementById("bienvenida").classList.remove("visible");}
 </script>
 </body>
 </html>
