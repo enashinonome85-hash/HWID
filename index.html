@@ -31,7 +31,7 @@ body {
 
 h1, h2 { text-shadow: 2px 2px 6px rgba(0,0,0,.4); }
 
-input {
+input, select {
     padding: 10px;
     width: 280px;
     font-size: 16px;
@@ -62,25 +62,24 @@ button:hover { background: #3498db; }
 /* Caja flotante */
 .caja-flotante {
     width: 90%;
-    max-width: 1200px;
-    max-height: 400px;
+    max-width: 450px;
     background: var(--panel-bg);
     padding: 20px;
     border-radius: 15px;
     position: fixed;
-    top: 120px;
+    top: 50%;
     left: 50%;
-    transform: translateX(-50%);
+    transform: translate(-50%, -50%) scale(0.7);
     display: none;
     color: var(--text-color);
     backdrop-filter: blur(6px);
     box-shadow: 0px 0px 20px #000;
     opacity: 0;
-    transition: opacity .3s ease;
-    overflow-x: auto;
+    transition: opacity .3s ease, transform .3s ease;
+    z-index: 9999;
 }
 
-.caja-flotante.visible { display: block; opacity: 1; }
+.caja-flotante.visible { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
 
 .closeBtn {
     background: #c0392b;
@@ -156,12 +155,7 @@ button:hover { background: #3498db; }
     z-index: 9999;
 }
 
-#switchText {
-    margin-bottom: 6px;
-    font-weight: bold;
-    color: var(--text-color);
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-}
+#switchText { margin-bottom: 6px; font-weight: bold; color: var(--text-color); }
 
 #switchTema {
     width: 60px;
@@ -185,13 +179,10 @@ button:hover { background: #3498db; }
     box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
-body.dark #switchTema .toggle {
-    transform: translateX(30px);
-}
+body.dark #switchTema .toggle { transform: translateX(30px); }
 
 #switchTema:hover { transform: scale(1.1); }
 
-/* Móvil: abajo derecha */
 @media (max-width: 600px) {
     #switchContainer { top: auto; bottom: 20px; right: 20px; }
     #switchTema { width: 50px; height: 26px; padding: 2px; }
@@ -206,9 +197,7 @@ body.dark #switchTema .toggle {
 <!-- Interruptor -->
 <div id="switchContainer">
     <div id="switchText">Modo Claro</div>
-    <div id="switchTema" onclick="toggleTema()">
-        <div class="toggle"></div>
-    </div>
+    <div id="switchTema" onclick="toggleTema()"><div class="toggle"></div></div>
 </div>
 
 <!-- Bienvenida -->
@@ -230,8 +219,20 @@ body.dark #switchTema .toggle {
 
 <hr>
 
-<h2>📌 Agregar HWID / UUID por columna</h2>
-<div id="agregarPorColumna"></div>
+<h2>📌 Agregar HWID / UUID</h2>
+<button onclick="abrirAgregar()">Agregar HWID/UUID</button>
+
+<!-- Caja flotante para agregar HWID/UUID -->
+<div id="cajaAgregar" class="caja-flotante">
+    <button class="closeBtn" onclick="cerrarAgregar()">X</button>
+    <h3>Agregar HWID / UUID</h3>
+    <input id="inputAgregar" placeholder="Ingresa HWID/UUID">
+    <br><br>
+    <label for="columnaAgregar">Selecciona columna:</label>
+    <select id="columnaAgregar"></select>
+    <br><br>
+    <button onclick="agregarAHWID()">Agregar</button>
+</div>
 
 <br>
 <button id="toggleBtn" onclick="toggleLista()">Mostrar lista</button>
@@ -247,47 +248,33 @@ body.dark #switchTema .toggle {
 </div>
 
 <script>
-const CONTRASENA = "torneo2025";
-
-let codigos = JSON.parse(localStorage.getItem("codigosGuardados")) || [];
-const nombresColumnas = [
-  "STELLARA","DINGOS GHOST",":STEAMDANCE:","4LOV","LAS MALCRIADAS","ANGELS APOCALYPTIC",
-  "Las Ohño","Woosh Girls","Blackyard Queens","BELLATRIX","PANDORA'S HORDE",
-  "Super Stars","The show girls","D' la rose","Las Quecas","HOA","Los Trabas","Infinity Girls"
+const CONTRASENA="torneo2025";
+let codigos=JSON.parse(localStorage.getItem("codigosGuardados"))||[];
+const nombresColumnas=[
+"STELLARA","DINGOS GHOST",":STEAMDANCE:","4LOV","LAS MALCRIADAS","ANGELS APOCALYPTIC",
+"Las Ohño","Woosh Girls","Blackyard Queens","BELLATRIX","PANDORA'S HORDE",
+"Super Stars","The show girls","D' la rose","Las Quecas","HOA","Los Trabas","Infinity Girls"
 ];
 
 function escapeHtml(text){ return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
-// Selector para verificar
-const selector = document.getElementById("columnaSeleccion");
+// Selector columna verificar
+const selector=document.getElementById("columnaSeleccion");
+const selectorAgregar=document.getElementById("columnaAgregar");
 nombresColumnas.forEach((nombre,index)=>{
     const opt=document.createElement("option");
-    opt.value=index;
-    opt.textContent=nombre;
-    selector.appendChild(opt);
-});
-
-// Inputs de agregar por columna
-const contAgregar=document.getElementById("agregarPorColumna");
-nombresColumnas.forEach((nombre,index)=>{
-    const div=document.createElement("div");
-    div.style.marginBottom="8px";
-    div.innerHTML=`
-        <strong>${escapeHtml(nombre)}</strong><br>
-        <input id="inputColumna${index}" placeholder="HWID/UUID">
-        <button onclick="agregarColumna(${index})">Agregar</button>
-    `;
-    contAgregar.appendChild(div);
+    opt.value=index; opt.textContent=nombre; selector.appendChild(opt);
+    const opt2=document.createElement("option");
+    opt2.value=index; opt2.textContent=nombre; selectorAgregar.appendChild(opt2);
 });
 
 // Crear encabezado tabla
 function crearEncabezado() {
     const encabezadoDiv=document.getElementById("encabezadoColumnas");
     encabezadoDiv.innerHTML="";
-    nombresColumnas.forEach((nombre,index)=>{
+    nombresColumnas.forEach(nombre=>{
         const col=document.createElement("div");
-        col.className="columna";
-        col.innerHTML=escapeHtml(nombre);
+        col.className="columna"; col.innerHTML=escapeHtml(nombre);
         encabezadoDiv.appendChild(col);
     });
 }
@@ -304,15 +291,11 @@ function actualizarLista(){
     const totalCols=nombresColumnas.length;
     const totalFilas=Math.ceil(codigos.length/totalCols);
     for(let i=0;i<totalFilas;i++){
-        const fila=document.createElement("div");
-        fila.className="fila";
+        const fila=document.createElement("div"); fila.className="fila";
         for(let j=0;j<totalCols;j++){
-            const index=i*totalCols+j;
-            const codigo=codigos[index]||"";
+            const index=i*totalCols+j; const codigo=codigos[index]||"";
             const boton=codigo?`<button class="delBtn" onclick="eliminarCodigo(${index})">Eliminar</button>`:"";
-            const col=document.createElement("div");
-            col.className="columna";
-            col.innerHTML=escapeHtml(codigo)+boton;
+            const col=document.createElement("div"); col.className="columna"; col.innerHTML=escapeHtml(codigo)+boton;
             fila.appendChild(col);
         }
         filasDiv.appendChild(fila);
@@ -320,15 +303,20 @@ function actualizarLista(){
 }
 actualizarLista();
 
-// Agregar por columna
-function agregarColumna(index){
-    const input=document.getElementById(`inputColumna${index}`);
-    const valor=input.value.trim();
-    if(!valor){ alert("El HWID/UUID no puede estar vacío"); return; }
-    codigos.push(valor);
-    localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
-    input.value="";
-    actualizarLista();
+// Agregar HWID
+function abrirAgregar(){ document.getElementById("cajaAgregar").classList.add("visible"); }
+function cerrarAgregar(){ document.getElementById("cajaAgregar").classList.remove("visible"); }
+function agregarAHWID(){
+    const input=document.getElementById("inputAgregar"); const valor=input.value.trim();
+    const colIndex=parseInt(document.getElementById("columnaAgregar").value);
+    if(!valor){ alert("HWID/UUID vacío"); return; }
+    // Insertar en la columna correspondiente
+    let insertIndex=codigos.length;
+    // Ajustar para que quede en la columna correcta
+    while(insertIndex%nombresColumnas.length!==colIndex){ insertIndex++; }
+    codigos.splice(insertIndex,0,valor);
+    localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
+    input.value=""; cerrarAgregar(); actualizarLista();
 }
 
 // Eliminar con contraseña
@@ -337,7 +325,7 @@ function eliminarCodigo(i){
     if(input===null) return;
     if(input!==CONTRASENA){ alert("Contraseña incorrecta"); return; }
     codigos.splice(i,1);
-    localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
+    localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
     actualizarLista();
 }
 
