@@ -7,14 +7,12 @@
 
     <style>
         :root {
-            /* MODO CLARO */
             --bg-overlay: rgba(255, 255, 255, 0.15);
             --panel-bg: rgba(255, 255, 255, 0.85);
             --text-color: #111;
         }
 
         body.dark {
-            /* MODO OSCURO */
             --bg-overlay: rgba(0, 0, 0, 0.45);
             --panel-bg: rgba(0, 0, 0, 0.75);
             --text-color: #fff;
@@ -159,10 +157,22 @@
         /* =============================
            Interruptor tipo iOS
         ============================== */
-        #switchTema {
+        #switchContainer {
             position: fixed;
-            top: 20px;
-            right: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        #switchText {
+            margin-bottom: 6px;
+            font-weight: bold;
+            color: var(--text-color);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+        }
+
+        #switchTema {
             width: 60px;
             height: 30px;
             background: var(--panel-bg);
@@ -173,7 +183,6 @@
             align-items: center;
             padding: 3px;
             transition: background .3s ease, transform .3s ease;
-            z-index: 9999;
         }
 
         #switchTema .toggle {
@@ -185,43 +194,22 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
-        #switchTema .icono {
-            position: absolute;
-            font-size: 17px;
-            pointer-events: none;
-        }
-
-        #sol { left: 8px; }
-        #luna { right: 8px; }
-
         body.dark #switchTema .toggle {
             transform: translateX(30px);
         }
 
         #switchTema:hover { transform: scale(1.1); }
 
-        /* Responsive Móvil */
+        /* Posición PC / Móvil */
+        @media (min-width: 601px) {
+            #switchContainer { top: 20px; right: 20px; left: auto; }
+        }
         @media (max-width: 600px) {
-            body { margin: 20px; }
-
-            h1 { font-size: 26px; }
-            h2 { font-size: 20px; }
-
-            input { width: 90%; font-size: 18px; padding: 12px; }
-
-            button { width: 92%; padding: 14px; font-size: 18px; }
-
-            #switchTema {
-                width: 50px; height: 26px;
-                top: 15px; right: 15px; padding: 2px;
-            }
-
+            #switchContainer { bottom: 20px; right: 20px; left: auto; }
+            #switchTema { width: 50px; height: 26px; padding: 2px; }
             #switchTema .toggle { width: 20px; height: 20px; }
             body.dark #switchTema .toggle { transform: translateX(24px); }
-            #switchTema .icono { font-size: 15px; }
-
-            .caja-flotante { top: 80px; max-height: 70vh; }
-            .lista-scroll { max-height: 55vh; }
+            #switchText { font-size: 14px; }
         }
     </style>
 </head>
@@ -229,10 +217,11 @@
 <body>
 
     <!-- Interruptor tipo iOS -->
-    <div id="switchTema" onclick="toggleTema()">
-        <span id="sol" class="icono">☀️</span>
-        <span id="luna" class="icono">🌙</span>
-        <div class="toggle"></div>
+    <div id="switchContainer">
+        <div id="switchText">Modo Claro</div>
+        <div id="switchTema" onclick="toggleTema()">
+            <div class="toggle"></div>
+        </div>
     </div>
 
     <!-- Mensaje de bienvenida -->
@@ -270,76 +259,67 @@
         const listaDiv = document.getElementById("lista");
         const listaFlotante = document.getElementById("listaFlotante");
         const toggleBtn = document.getElementById("toggleBtn");
+        const switchText = document.getElementById("switchText");
 
-        // Actualizar lista
         function actualizarLista() {
-            if (codigos.length === 0) {
-                listaDiv.innerHTML = "No hay HWID/UUID guardados.";
-                return;
-            }
-            listaDiv.innerHTML = codigos.map((codigo, i) => `
+            if (codigos.length === 0) { listaDiv.innerHTML = "No hay HWID/UUID guardados."; return; }
+            listaDiv.innerHTML = codigos.map((c,i)=>`
                 <div class="item">
-                    ${escapeHtml(codigo)}
+                    ${escapeHtml(c)}
                     <button class="delBtn" onclick="eliminarCodigo(${i})">Eliminar</button>
-                </div>
-            `).join("");
+                </div>`).join("");
         }
         actualizarLista();
 
         function guardarCodigo() {
-            const codigo = document.getElementById("nuevoCodigo").value.trim();
-            if (!codigo) return alert("El HWID/UUID no puede estar vacío");
-            if (codigos.includes(codigo)) return alert("Este HWID/UUID ya está guardado");
-            codigos.push(codigo);
+            const c = document.getElementById("nuevoCodigo").value.trim();
+            if(!c) return alert("El HWID/UUID no puede estar vacío");
+            if(codigos.includes(c)) return alert("Este HWID/UUID ya está guardado");
+            codigos.push(c);
             localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
-            document.getElementById("nuevoCodigo").value = "";
+            document.getElementById("nuevoCodigo").value="";
             actualizarLista();
         }
 
         function verificar() {
-            const codigo = document.getElementById("codigoVerificar").value.trim();
+            const c = document.getElementById("codigoVerificar").value.trim();
             const r = document.getElementById("resultado");
-            if (codigos.includes(codigo)) {
-                r.textContent = "✔ Correcto: HWID/UUID verificado";
-                r.style.color = "lime";
-            } else {
-                r.textContent = "✘ Incorrecto: este HWID/UUID no está registrado";
-                r.style.color = "red";
-            }
+            if(codigos.includes(c)) { r.textContent="✔ Correcto: HWID/UUID verificado"; r.style.color="lime"; }
+            else { r.textContent="✘ Incorrecto: este HWID/UUID no está registrado"; r.style.color="red"; }
         }
 
         function eliminarCodigo(i) {
-            if (!confirm("¿Seguro que deseas eliminar este HWID/UUID?")) return;
-            codigos.splice(i, 1);
+            if(!confirm("¿Seguro que deseas eliminar este HWID/UUID?")) return;
+            codigos.splice(i,1);
             localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
             actualizarLista();
         }
 
-        let listaVisible = false;
+        let listaVisible=false;
         function toggleLista() {
-            listaVisible = !listaVisible;
+            listaVisible=!listaVisible;
             listaFlotante.classList.toggle("visible", listaVisible);
             toggleBtn.textContent = listaVisible ? "🔒 Lista abierta" : "👁️ Mostrar lista";
         }
 
-        // Modo claro/oscuro
-        function toggleTema() { document.body.classList.toggle("dark"); }
+        // Modo Claro/Oscuro con texto dinámico
+        const switchTema = document.getElementById("switchTema");
+        function toggleTema() {
+            document.body.classList.toggle("dark");
+            switchText.textContent = document.body.classList.contains("dark") ? "Modo Oscuro" : "Modo Claro";
+        }
 
-        // Mensaje de bienvenida
-        window.onload = function () {
-            const bienvenida = document.getElementById("bienvenida");
+        // Mensaje bienvenida
+        window.onload = function() {
+            const bienvenida=document.getElementById("bienvenida");
             bienvenida.classList.add("visible");
-            setTimeout(() => cerrarBienvenida(), 5000);
-        };
+            setTimeout(()=>cerrarBienvenida(),5000);
+        }
         function cerrarBienvenida() { document.getElementById("bienvenida").classList.remove("visible"); }
 
-        // Escape HTML para seguridad
-        function escapeHtml(text) {
-            return text.replace(/[&<>"']/g, c => ({
-                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
-            }[c]));
-        }
+        function escapeHtml(text){ return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
     </script>
 </body>
 </html>
+
 
