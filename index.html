@@ -1,325 +1,322 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verificación de HWID y UUID</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verificación de HWID y UUID</title>
 
-    <style>
-        :root {
-            --bg-overlay: rgba(255, 255, 255, 0.15);
-            --panel-bg: rgba(255, 255, 255, 0.85);
-            --text-color: #111;
-        }
+<style>
+:root {
+    --bg-overlay: rgba(255, 255, 255, 0.15);
+    --panel-bg: rgba(255, 255, 255, 0.85);
+    --text-color: #111;
+}
 
-        body.dark {
-            --bg-overlay: rgba(0, 0, 0, 0.45);
-            --panel-bg: rgba(0, 0, 0, 0.75);
-            --text-color: #fff;
-        }
+body.dark {
+    --bg-overlay: rgba(0, 0, 0, 0.45);
+    --panel-bg: rgba(0, 0, 0, 0.75);
+    --text-color: #fff;
+}
 
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-            color: var(--text-color);
-            text-align: center;
-            background-image: url('20240731_073957.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-        }
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    color: var(--text-color);
+    text-align: center;
+    background-image: url('20240731_073957.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+}
 
-        h1, h2 { text-shadow: 2px 2px 6px rgba(0,0,0,.4); }
+h1, h2 { text-shadow: 2px 2px 6px rgba(0,0,0,.4); }
 
-        input {
-            padding: 10px;
-            width: 280px;
-            font-size: 16px;
-            border-radius: 8px;
-            border: none;
-            outline: none;
-            background: var(--panel-bg);
-            color: var(--text-color);
-        }
+input {
+    padding: 10px;
+    width: 280px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    background: var(--panel-bg);
+    color: var(--text-color);
+}
 
-        button {
-            padding: 10px 18px;
-            font-size: 16px;
-            margin-top: 10px;
-            cursor: pointer;
-            border-radius: 8px;
-            border: none;
-            background: #2980b9;
-            color: white;
-            font-weight: bold;
-            transition: .2s;
-        }
+button {
+    padding: 10px 18px;
+    font-size: 16px;
+    margin-top: 10px;
+    cursor: pointer;
+    border-radius: 8px;
+    border: none;
+    background: #2980b9;
+    color: white;
+    font-weight: bold;
+    transition: .2s;
+}
 
-        button:hover { background: #3498db; }
+button:hover { background: #3498db; }
 
-        #resultado { margin-top: 20px; font-size: 20px; font-weight: bold; }
+#resultado { margin-top: 20px; font-size: 20px; font-weight: bold; }
 
-        /* Caja flotante */
-        .caja-flotante {
-            width: 380px;
-            max-width: 90%;
-            max-height: 320px;
-            background: var(--panel-bg);
-            padding: 20px;
-            border-radius: 15px;
-            position: fixed;
-            top: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: none;
-            color: var(--text-color);
-            backdrop-filter: blur(6px);
-            box-shadow: 0px 0px 20px #000;
-            opacity: 0;
-            transition: opacity .3s ease;
-        }
+/* Caja flotante */
+.caja-flotante {
+    width: 380px;
+    max-width: 90%;
+    max-height: 320px;
+    background: var(--panel-bg);
+    padding: 20px;
+    border-radius: 15px;
+    position: fixed;
+    top: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: none;
+    color: var(--text-color);
+    backdrop-filter: blur(6px);
+    box-shadow: 0px 0px 20px #000;
+    opacity: 0;
+    transition: opacity .3s ease;
+}
 
-        .caja-flotante.visible { display: block; opacity: 1; }
+.caja-flotante.visible { display: block; opacity: 1; }
 
-        .closeBtn {
-            background: #c0392b;
-            border: none;
-            padding: 6px 14px;
-            border-radius: 6px;
-            color: white;
-            font-weight: bold;
-            cursor: pointer;
-            position: absolute;
-            top: 12px;
-            right: 12px;
-        }
+.closeBtn {
+    background: #c0392b;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    top: 12px;
+    right: 12px;
+}
 
-        .lista-scroll {
-            max-height: 230px;
-            overflow-y: auto;
-            margin-top: 35px;
-        }
+.lista-scroll {
+    max-height: 230px;
+    overflow-y: auto;
+    margin-top: 35px;
+}
 
-        .item {
-            margin: 6px 0;
-            padding: 6px;
-            background: var(--bg-overlay);
-            border-radius: 6px;
-        }
+.item {
+    margin: 6px 0;
+    padding: 6px;
+    background: var(--bg-overlay);
+    border-radius: 6px;
+}
 
-        .delBtn {
-            background-color: red;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            font-size: 14px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
+.delBtn {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 5px;
+}
 
-        /* Scroll */
-        .lista-scroll::-webkit-scrollbar {
-            width: 8px;
-        }
+.lista-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+.lista-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.4);
+    border-radius: 3px;
+}
 
-        .lista-scroll::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.4);
-            border-radius: 3px;
-        }
+/* Mensaje de bienvenida */
+.bienvenida {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0.7);
+    background: var(--panel-bg);
+    color: var(--text-color);
+    padding: 25px 30px;
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    box-shadow: 0px 0px 20px #000;
+    text-align: center;
+    width: 320px;
+    max-width: 90%;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .4s ease, transform .4s ease;
+    z-index: 9999;
+}
 
-        /* Mensaje de bienvenida */
-        .bienvenida {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.7);
-            background: var(--panel-bg);
-            color: var(--text-color);
-            padding: 25px 30px;
-            border-radius: 12px;
-            backdrop-filter: blur(8px);
-            box-shadow: 0px 0px 20px #000;
-            text-align: center;
-            width: 320px;
-            max-width: 90%;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity .4s ease, transform .4s ease;
-            z-index: 9999;
-        }
+.bienvenida.visible {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+    pointer-events: auto;
+}
 
-        .bienvenida.visible {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-            pointer-events: auto;
-        }
+/* Interruptor tipo iOS */
+#switchContainer {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 9999;
+}
 
-        /* =============================
-           Interruptor tipo iOS
-        ============================== */
-        #switchContainer {
-            position: fixed;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            z-index: 9999;
-        }
+#switchText {
+    margin-bottom: 6px;
+    font-weight: bold;
+    color: var(--text-color);
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
+}
 
-        #switchText {
-            margin-bottom: 6px;
-            font-weight: bold;
-            color: var(--text-color);
-            text-shadow: 1px 1px 3px rgba(0,0,0,0.3);
-        }
+#switchTema {
+    width: 60px;
+    height: 30px;
+    background: var(--panel-bg);
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+    display: flex;
+    align-items: center;
+    padding: 3px;
+    transition: background .3s ease, transform .3s ease;
+}
 
-        #switchTema {
-            width: 60px;
-            height: 30px;
-            background: var(--panel-bg);
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
-            display: flex;
-            align-items: center;
-            padding: 3px;
-            transition: background .3s ease, transform .3s ease;
-        }
+#switchTema .toggle {
+    width: 24px;
+    height: 24px;
+    background: var(--text-color);
+    border-radius: 50%;
+    transition: transform .3s ease, background .3s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+}
 
-        #switchTema .toggle {
-            width: 24px;
-            height: 24px;
-            background: var(--text-color);
-            border-radius: 50%;
-            transition: transform .3s ease, background .3s ease;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
-        }
+body.dark #switchTema .toggle {
+    transform: translateX(30px);
+}
 
-        body.dark #switchTema .toggle {
-            transform: translateX(30px);
-        }
+#switchTema:hover { transform: scale(1.1); }
 
-        #switchTema:hover { transform: scale(1.1); }
-
-        /* Posición PC / Móvil */
-        @media (min-width: 601px) {
-            #switchContainer { top: 20px; right: 20px; left: auto; }
-        }
-        @media (max-width: 600px) {
-            #switchContainer { bottom: 20px; right: 20px; left: auto; }
-            #switchTema { width: 50px; height: 26px; padding: 2px; }
-            #switchTema .toggle { width: 20px; height: 20px; }
-            body.dark #switchTema .toggle { transform: translateX(24px); }
-            #switchText { font-size: 14px; }
-        }
-    </style>
+/* Móvil: abajo derecha */
+@media (max-width: 600px) {
+    #switchContainer {
+        top: auto;
+        bottom: 20px;
+        right: 20px;
+    }
+    #switchTema { width: 50px; height: 26px; padding: 2px; }
+    #switchTema .toggle { width: 20px; height: 20px; }
+    body.dark #switchTema .toggle { transform: translateX(24px); }
+    #switchText { font-size: 14px; }
+}
+</style>
 </head>
 
 <body>
 
-    <!-- Interruptor tipo iOS -->
-    <div id="switchContainer">
-        <div id="switchText">Modo Claro</div>
-        <div id="switchTema" onclick="toggleTema()">
-            <div class="toggle"></div>
-        </div>
+<!-- Interruptor tipo iOS -->
+<div id="switchContainer">
+    <div id="switchText">Modo Claro</div>
+    <div id="switchTema" onclick="toggleTema()">
+        <div class="toggle"></div>
     </div>
+</div>
 
-    <!-- Mensaje de bienvenida -->
-    <div id="bienvenida" class="bienvenida">
-        <h2>¡Bienvenido! 👋</h2>
-        <p>Gracias por usar el verificador de HWID / UUID.</p>
-        <button onclick="cerrarBienvenida()">Cerrar</button>
-    </div>
+<!-- Mensaje de bienvenida -->
+<div id="bienvenida" class="bienvenida">
+    <h2>¡Bienvenido! 👋</h2>
+    <p>Gracias por usar el verificador de HWID / UUID.</p>
+    <button onclick="cerrarBienvenida()">Cerrar</button>
+</div>
 
-    <h1>🔐 Verificación de HWID y UUID</h1>
+<h1>🔐 Verificación de HWID y UUID</h1>
 
-    <h2>📌 Guardar HWID / UUID</h2>
-    <input id="nuevoCodigo" placeholder="Ingresa HWID o UUID para guardar">
-    <button onclick="guardarCodigo()">Guardar</button>
+<h2>📌 Guardar HWID / UUID</h2>
+<input id="nuevoCodigo" placeholder="Ingresa HWID o UUID para guardar">
+<button onclick="guardarCodigo()">Guardar</button>
 
-    <br><br>
+<br><br>
 
-    <button id="toggleBtn" onclick="toggleLista()">👁️ Mostrar lista</button>
+<button id="toggleBtn" onclick="toggleLista()">👁️ Mostrar lista</button>
 
-    <div id="listaFlotante" class="caja-flotante">
-        <button class="closeBtn" onclick="toggleLista()">X</button>
-        <h3>HWID / UUID guardados</h3>
-        <div id="lista" class="lista-scroll"></div>
-    </div>
+<div id="listaFlotante" class="caja-flotante">
+    <button class="closeBtn" onclick="toggleLista()">X</button>
+    <h3>HWID / UUID guardados</h3>
+    <div id="lista" class="lista-scroll"></div>
+</div>
 
-    <hr>
+<hr>
 
-    <h2>🔎 Verificar HWID / UUID</h2>
-    <input id="codigoVerificar" placeholder="Ingresa HWID o UUID a verificar">
-    <button onclick="verificar()">Verificar</button>
-    <div id="resultado"></div>
+<h2>🔎 Verificar HWID / UUID</h2>
+<input id="codigoVerificar" placeholder="Ingresa HWID o UUID a verificar">
+<button onclick="verificar()">Verificar</button>
+<div id="resultado"></div>
 
-    <script>
-        let codigos = JSON.parse(localStorage.getItem("codigosGuardados")) || [];
-        const listaDiv = document.getElementById("lista");
-        const listaFlotante = document.getElementById("listaFlotante");
-        const toggleBtn = document.getElementById("toggleBtn");
-        const switchText = document.getElementById("switchText");
+<script>
+let codigos = JSON.parse(localStorage.getItem("codigosGuardados")) || [];
+const listaDiv = document.getElementById("lista");
+const listaFlotante = document.getElementById("listaFlotante");
+const toggleBtn = document.getElementById("toggleBtn");
+const switchText = document.getElementById("switchText");
 
-        function actualizarLista() {
-            if (codigos.length === 0) { listaDiv.innerHTML = "No hay HWID/UUID guardados."; return; }
-            listaDiv.innerHTML = codigos.map((c,i)=>`
-                <div class="item">
-                    ${escapeHtml(c)}
-                    <button class="delBtn" onclick="eliminarCodigo(${i})">Eliminar</button>
-                </div>`).join("");
-        }
-        actualizarLista();
+function actualizarLista() {
+    if (codigos.length === 0) { listaDiv.innerHTML = "No hay HWID/UUID guardados."; return; }
+    listaDiv.innerHTML = codigos.map((c,i)=>`
+        <div class="item">
+            ${escapeHtml(c)}
+            <button class="delBtn" onclick="eliminarCodigo(${i})">Eliminar</button>
+        </div>`).join("");
+}
+actualizarLista();
 
-        function guardarCodigo() {
-            const c = document.getElementById("nuevoCodigo").value.trim();
-            if(!c) return alert("El HWID/UUID no puede estar vacío");
-            if(codigos.includes(c)) return alert("Este HWID/UUID ya está guardado");
-            codigos.push(c);
-            localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
-            document.getElementById("nuevoCodigo").value="";
-            actualizarLista();
-        }
+function guardarCodigo() {
+    const c = document.getElementById("nuevoCodigo").value.trim();
+    if(!c) return alert("El HWID/UUID no puede estar vacío");
+    if(codigos.includes(c)) return alert("Este HWID/UUID ya está guardado");
+    codigos.push(c);
+    localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
+    document.getElementById("nuevoCodigo").value="";
+    actualizarLista();
+}
 
-        function verificar() {
-            const c = document.getElementById("codigoVerificar").value.trim();
-            const r = document.getElementById("resultado");
-            if(codigos.includes(c)) { r.textContent="✔ Correcto: HWID/UUID verificado"; r.style.color="lime"; }
-            else { r.textContent="✘ Incorrecto: este HWID/UUID no está registrado"; r.style.color="red"; }
-        }
+function verificar() {
+    const c = document.getElementById("codigoVerificar").value.trim();
+    const r = document.getElementById("resultado");
+    if(codigos.includes(c)) { r.textContent="✔ Correcto: HWID/UUID verificado"; r.style.color="lime"; }
+    else { r.textContent="✘ Incorrecto: este HWID/UUID no está registrado"; r.style.color="red"; }
+}
 
-        function eliminarCodigo(i) {
-            if(!confirm("¿Seguro que deseas eliminar este HWID/UUID?")) return;
-            codigos.splice(i,1);
-            localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
-            actualizarLista();
-        }
+function eliminarCodigo(i) {
+    if(!confirm("¿Seguro que deseas eliminar este HWID/UUID?")) return;
+    codigos.splice(i,1);
+    localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
+    actualizarLista();
+}
 
-        let listaVisible=false;
-        function toggleLista() {
-            listaVisible=!listaVisible;
-            listaFlotante.classList.toggle("visible", listaVisible);
-            toggleBtn.textContent = listaVisible ? "🔒 Lista abierta" : "👁️ Mostrar lista";
-        }
+let listaVisible=false;
+function toggleLista() {
+    listaVisible=!listaVisible;
+    listaFlotante.classList.toggle("visible", listaVisible);
+    toggleBtn.textContent = listaVisible ? "🔒 Lista abierta" : "👁️ Mostrar lista";
+}
 
-        // Modo Claro/Oscuro con texto dinámico
-        const switchTema = document.getElementById("switchTema");
-        function toggleTema() {
-            document.body.classList.toggle("dark");
-            switchText.textContent = document.body.classList.contains("dark") ? "Modo Oscuro" : "Modo Claro";
-        }
+// Modo Claro/Oscuro con texto dinámico
+const switchTema = document.getElementById("switchTema");
+function toggleTema() {
+    document.body.classList.toggle("dark");
+    switchText.textContent = document.body.classList.contains("dark") ? "Modo Oscuro" : "Modo Claro";
+}
 
-        // Mensaje bienvenida
-        window.onload = function() {
-            const bienvenida=document.getElementById("bienvenida");
-            bienvenida.classList.add("visible");
-            setTimeout(()=>cerrarBienvenida(),5000);
-        }
-        function cerrarBienvenida() { document.getElementById("bienvenida").classList.remove("visible"); }
+// Mensaje bienvenida
+window.onload = function() {
+    const bienvenida=document.getElementById("bienvenida");
+    bienvenida.classList.add("visible");
+    setTimeout(()=>cerrarBienvenida(),5000);
+}
+function cerrarBienvenida() { document.getElementById("bienvenida").classList.remove("visible"); }
 
-        function escapeHtml(text){ return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
-    </script>
+function escapeHtml(text){ return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+</script>
 </body>
 </html>
-
-
