@@ -2,59 +2,65 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Verificación de HWID / UUID</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- 🔥 NECESARIO PARA MÓVIL -->
+    <title>Verificación de HWID y UUID</title>
 
     <style>
         body {
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             margin: 40px;
             color: white;
             text-align: center;
-
             background-image: url('20240731_073957.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
 
+        h1, h2 {
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+        }
+
         input {
-            padding: 8px;
-            width: 260px;
+            padding: 10px;
+            width: 280px;
             font-size: 16px;
-            border-radius: 6px;
+            border-radius: 8px;
             border: none;
+            outline: none;
         }
 
         button {
-            padding: 8px 16px;
+            padding: 10px 18px;
             font-size: 16px;
             margin-top: 10px;
             cursor: pointer;
-            border-radius: 6px;
+            border-radius: 8px;
             border: none;
             background: #2980b9;
             color: white;
             font-weight: bold;
             transition: 0.2s;
         }
-
         button:hover {
             background: #3498db;
         }
 
+        /* Resultado */
         #resultado {
             margin-top: 20px;
             font-size: 20px;
             font-weight: bold;
         }
 
-        /* Caja flotante */
+        /* Caja flotante (Responsive) */
         .caja-flotante {
-            width: 350px;
-            max-height: 300px;
+            width: 380px;
+            max-width: 90%; /* 🔥 Para móvil */
+            max-height: 320px;
             background: rgba(0, 0, 0, 0.82);
-            padding: 15px;
-            border-radius: 12px;
+            padding: 20px;
+            border-radius: 15px;
             position: fixed;
             top: 120px;
             left: 50%;
@@ -72,33 +78,31 @@
             opacity: 1;
         }
 
-        /* Botón cerrar */
         .closeBtn {
             background: #c0392b;
             border: none;
-            padding: 5px 12px;
+            padding: 6px 14px;
             border-radius: 6px;
             color: white;
             font-weight: bold;
             cursor: pointer;
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 12px;
+            right: 12px;
         }
         .closeBtn:hover {
             background: #e74c3c;
         }
 
-        /* Lista */
         .lista-scroll {
-            max-height: 220px;
+            max-height: 230px;
             overflow-y: auto;
-            margin-top: 30px;
+            margin-top: 35px;
         }
 
         .item {
             margin: 6px 0;
-            padding: 5px;
+            padding: 6px;
             background: rgba(255,255,255,0.08);
             border-radius: 6px;
         }
@@ -107,17 +111,13 @@
             background-color: red;
             color: white;
             border: none;
-            padding: 4px 10px;
-            margin-left: 10px;
-            cursor: pointer;
+            padding: 5px 10px;
             font-size: 14px;
-            border-radius: 4px;
-        }
-        .delBtn:hover {
-            background: #ff3b3b;
+            cursor: pointer;
+            border-radius: 5px;
         }
 
-        /* Scroll */
+        /* SCROLL */
         .lista-scroll::-webkit-scrollbar {
             width: 8px;
         }
@@ -125,8 +125,60 @@
             background: rgba(255, 255, 255, 0.4);
             border-radius: 3px;
         }
-        .lista-scroll::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.7);
+
+        /* ---------------------------------------------------------
+           📱📱 OPTIMIZACIÓN PARA TELÉFONOS (MOBILE FIRST)
+        --------------------------------------------------------- */
+        @media (max-width: 600px) {
+
+            body {
+                margin: 20px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            h2 {
+                font-size: 20px;
+            }
+
+            input {
+                width: 90%;
+                font-size: 18px;
+                padding: 12px;
+            }
+
+            button {
+                width: 92%;
+                padding: 14px;
+                font-size: 18px;
+            }
+
+            #resultado {
+                font-size: 22px;
+            }
+
+            .caja-flotante {
+                top: 80px;
+                padding: 15px;
+                border-radius: 12px;
+                max-height: 70vh; /* pantalla vertical */
+            }
+
+            .lista-scroll {
+                max-height: 55vh;
+            }
+
+            .item {
+                font-size: 16px;
+                padding: 10px;
+            }
+
+            .delBtn {
+                padding: 6px 12px;
+                font-size: 15px;
+            }
         }
 
     </style>
@@ -144,11 +196,9 @@
 
     <button id="toggleBtn" onclick="toggleLista()">👁️ Mostrar lista</button>
 
-    <!-- Caja flotante -->
     <div id="listaFlotante" class="caja-flotante">
         <button class="closeBtn" onclick="toggleLista()">X</button>
         <h3>HWID / UUID guardados</h3>
-
         <div id="lista" class="lista-scroll"></div>
     </div>
 
@@ -167,47 +217,33 @@
         const listaFlotante = document.getElementById("listaFlotante");
         const toggleBtn = document.getElementById("toggleBtn");
 
-        /* --------------------- Crear lista ------------------------ */
         function actualizarLista() {
             if (codigos.length === 0) {
                 listaDiv.innerHTML = "No hay HWID/UUID guardados.";
                 return;
             }
 
-            listaDiv.innerHTML = codigos
-                .map((codigo, index) => `
-                    <div class="item">
-                        ${escapeHtml(codigo)}
-                        <button class="delBtn" onclick="eliminarCodigo(${index})">Eliminar</button>
-                    </div>
-                `)
-                .join("");
+            listaDiv.innerHTML = codigos.map((codigo, i) => `
+                <div class="item">
+                    ${escapeHtml(codigo)}
+                    <button class="delBtn" onclick="eliminarCodigo(${i})">Eliminar</button>
+                </div>
+            `).join("");
         }
 
         actualizarLista();
 
-        /* --------------------- Guardar código --------------------- */
         function guardarCodigo() {
             const codigo = document.getElementById("nuevoCodigo").value.trim();
-
-            if (!codigo) {
-                alert("El HWID/UUID no puede estar vacío");
-                return;
-            }
-
-            if (codigos.includes(codigo)) {
-                alert("Este HWID/UUID ya está guardado");
-                return;
-            }
+            if (!codigo) return alert("El HWID/UUID no puede estar vacío");
+            if (codigos.includes(codigo)) return alert("Este HWID/UUID ya está guardado");
 
             codigos.push(codigo);
             localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
-
             document.getElementById("nuevoCodigo").value = "";
             actualizarLista();
         }
 
-        /* ------------------------- Verificar ------------------------ */
         function verificar() {
             const codigo = document.getElementById("codigoVerificar").value.trim();
             const resultado = document.getElementById("resultado");
@@ -221,7 +257,6 @@
             }
         }
 
-        /* ---------------------- Eliminar código --------------------- */
         function eliminarCodigo(i) {
             if (!confirm("¿Seguro que deseas eliminar este HWID/UUID?")) return;
             codigos.splice(i, 1);
@@ -229,22 +264,14 @@
             actualizarLista();
         }
 
-        /* ---------------------- Mostrar/Ocultar lista ---------------- */
         let listaVisible = false;
 
         function toggleLista() {
             listaVisible = !listaVisible;
-
-            if (listaVisible) {
-                listaFlotante.classList.add("visible");
-                toggleBtn.textContent = "🔒 Lista abierta";
-            } else {
-                listaFlotante.classList.remove("visible");
-                toggleBtn.textContent = "👁️ Mostrar lista";
-            }
+            listaFlotante.classList.toggle("visible", listaVisible);
+            toggleBtn.textContent = listaVisible ? "🔒 Lista abierta" : "👁️ Mostrar lista";
         }
 
-        /* ---------------------- Sanitizar HTML ---------------------- */
         function escapeHtml(text) {
             return text.replace(/[&<>"']/g, c => ({
                 "&": "&amp;",
@@ -254,8 +281,10 @@
                 "'": "&#39;"
             }[c]));
         }
-
     </script>
 
 </body>
 </html>
+
+</html>
+
