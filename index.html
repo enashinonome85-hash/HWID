@@ -17,38 +17,48 @@ body.dark {
 }
 body {
     font-family: Arial, sans-serif;
-    margin: 20px;
+    margin: 0;
     color: var(--text-color);
     background-image: url('20240731_073957.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 20px;
+    box-sizing: border-box;
 }
-h1,h2 { text-shadow: 2px 2px 6px rgba(0,0,0,.4); }
-input, select {
-    padding: 10px;
-    width: 280px;
+.container {
+    width: 100%;
+    max-width: 1000px;
+    background: var(--panel-bg);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+h1,h2 { text-align:center; text-shadow: 2px 2px 6px rgba(0,0,0,.4); margin: 10px 0; }
+input, select, button {
     font-size: 16px;
     border-radius: 8px;
     border: none;
     outline: none;
-    background: var(--panel-bg);
-    color: var(--text-color);
+    padding: 10px;
+    margin: 5px 0;
+    box-sizing: border-box;
 }
+input, select { width: 100%; max-width: 300px; background: var(--panel-bg); color: var(--text-color); }
 button {
-    padding: 10px 18px;
-    font-size: 16px;
-    margin-top: 10px;
-    cursor: pointer;
-    border-radius: 8px;
-    border: none;
     background: #2980b9;
     color: white;
     font-weight: bold;
-    transition: .2s;
+    cursor: pointer;
+    transition: 0.2s;
 }
 button:hover { background: #3498db; }
-#resultado, #resultadoAgregar { margin-top: 12px; font-size: 18px; font-weight: bold; min-height: 24px; }
+#resultado, #resultadoAgregar { margin-top: 10px; font-weight: bold; min-height: 24px; }
+
 .caja-flotante {
     width: 95%;
     max-width: 500px;
@@ -125,13 +135,15 @@ body.dark #switchTema .toggle { transform: translateX(30px);}
     body.dark #switchTema .toggle { transform: translateX(24px);}
     #switchText { font-size:14px;}
 }
+
 #footerText {
-    position: fixed; bottom:20px; left:20px;
-    background: var(--bg-overlay); padding:8px 12px; border-radius:8px; color:var(--text-color); font-weight:bold; font-size:14px; z-index:999;
+    text-align:center; margin-top:20px; font-weight:bold; color:var(--text-color);
 }
 </style>
 </head>
 <body>
+
+<div class="container">
 
 <div id="switchContainer">
     <div id="switchText">Modo Claro</div>
@@ -146,16 +158,17 @@ body.dark #switchTema .toggle { transform: translateX(30px);}
 
 <h1>Verificación de HWID y UUID</h1>
 <h2>🔎 Verificar HWID / UUID</h2>
-<input id="codigoVerificar" placeholder="Ingresa HWID o UUID"><br><br>
+<input id="codigoVerificar" placeholder="Ingresa HWID o UUID"><br>
 <label for="columnaSeleccion">Selecciona columna para verificar:</label>
 <select id="columnaSeleccion"></select>
 <button onclick="verificar()">Verificar</button>
 <div id="resultado"></div>
+
 <hr>
 <h2>📌 Agregar HWID / UUID</h2>
-<input id="inputAgregarDirecto" placeholder="Ingresa HWID/UUID"><br><br>
+<input id="inputAgregarDirecto" placeholder="Ingresa HWID/UUID"><br>
 <label for="columnaAgregarDirecto">Selecciona columna:</label>
-<select id="columnaAgregarDirecto"></select><br><br>
+<select id="columnaAgregarDirecto"></select><br>
 <button onclick="agregarDirecto()">Agregar</button>
 <div id="resultadoAgregar"></div><br>
 <button onclick="abrirAgregar()">Agregar con caja flotante</button>
@@ -163,15 +176,14 @@ body.dark #switchTema .toggle { transform: translateX(30px);}
 <div id="cajaAgregar" class="caja-flotante">
     <button class="closeBtn" onclick="cerrarAgregar()">X</button>
     <h3>Agregar HWID / UUID</h3>
-    <input id="inputAgregar" placeholder="Ingresa HWID/UUID"><br><br>
+    <input id="inputAgregar" placeholder="Ingresa HWID/UUID"><br>
     <label for="columnaAgregar">Selecciona columna:</label>
-    <select id="columnaAgregar"></select><br><br>
+    <select id="columnaAgregar"></select><br>
     <button onclick="agregarAHWID()">Agregar</button>
 </div>
 
 <br><button id="toggleBtn" onclick="toggleLista()">Mostrar lista</button>
 
-<!-- Caja flotante lista con selector de columna -->
 <div id="listaFlotante" class="caja-flotante">
     <button class="closeBtn" onclick="toggleLista()">X</button>
     <div style="margin-bottom: 10px; display:flex; flex-wrap:wrap; gap:8px; justify-content:center; align-items:center;">
@@ -190,6 +202,7 @@ body.dark #switchTema .toggle { transform: translateX(30px);}
 </div>
 
 <div id="footerText">Verificación de HWID/UUID torneo de mujeres</div>
+</div>
 
 <script>
 const CONTRASENA = "torneo2025";
@@ -202,7 +215,6 @@ const nombresColumnas = [
 
 function escapeHtml(text){return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
 
-// Selects para agregar/verificar
 const selector = document.getElementById("columnaSeleccion");
 const selectorAgregar = document.getElementById("columnaAgregar");
 const selectorAgregarDirecto = document.getElementById("columnaAgregarDirecto");
@@ -215,11 +227,9 @@ nombresColumnas.forEach((nombre,index)=>{
     const optFiltro = document.createElement("option"); optFiltro.value=index; optFiltro.textContent=nombre; filtroColumna.appendChild(optFiltro);
 });
 
-// Caja flotante agregar
 function abrirAgregar(){document.getElementById("cajaAgregar").classList.add("visible");}
 function cerrarAgregar(){document.getElementById("cajaAgregar").classList.remove("visible");}
 
-// Verificación
 function existeHWID(valor){return codigos.includes(valor);}
 function agregarEnColumna(valor,colIndex){
     const resultadoAgregarDiv=document.getElementById("resultadoAgregar");
@@ -278,7 +288,6 @@ function actualizarLista(){
     const totalCols=nombresColumnas.length;
     const totalFilas=Math.ceil(codigos.length/totalCols);
     const columnasVisibles=(filtro>=0)?[filtro]:nombresColumnas.map((_,i)=>i);
-    // Encabezado
     const encabezadoDiv=document.getElementById("encabezadoColumnas");
     encabezadoDiv.innerHTML="";
     columnasVisibles.forEach(i=>{
@@ -322,5 +331,6 @@ window.onload=function(){
 
 function cerrarBienvenida(){document.getElementById("bienvenida").classList.remove("visible");}
 </script>
+
 </body>
 </html>
