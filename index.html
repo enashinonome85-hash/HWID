@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Verificación de HWID y UUID</title>
 
 <style>
@@ -224,41 +224,41 @@ body.dark #switchTema .toggle { transform: translateX(30px); }
 <h1>Verificación de HWID y UUID</h1>
 
 <h2>🔎 Verificar HWID / UUID</h2>
-<input id="codigoVerificar" placeholder="Ingresa HWID o UUID">
-<br><br>
+<input id="codigoVerificar" placeholder="Ingresa HWID o UUID" />
+<br /><br />
 <label for="columnaSeleccion">Selecciona columna para verificar:</label>
 <select id="columnaSeleccion"></select>
 <button onclick="verificar()">Verificar</button>
 <div id="resultado"></div>
 
-<hr>
+<hr />
 
 <h2>📌 Agregar HWID / UUID</h2>
 
 <!-- Agregar HWID directamente -->
-<input id="inputAgregarDirecto" placeholder="Ingresa HWID/UUID">
-<br><br>
+<input id="inputAgregarDirecto" placeholder="Ingresa HWID/UUID" />
+<br /><br />
 <label for="columnaAgregarDirecto">Selecciona columna para agregar:</label>
 <select id="columnaAgregarDirecto"></select>
-<br><br>
+<br /><br />
 <button onclick="agregarDirecto()">Agregar</button>
 
-<br><br>
+<br /><br />
 <button onclick="abrirAgregar()">Agregar con caja flotante</button>
 
 <!-- Caja flotante para agregar HWID/UUID -->
 <div id="cajaAgregar" class="caja-flotante">
     <button class="closeBtn" onclick="cerrarAgregar()">X</button>
     <h3>Agregar HWID / UUID</h3>
-    <input id="inputAgregar" placeholder="Ingresa HWID/UUID">
-    <br><br>
+    <input id="inputAgregar" placeholder="Ingresa HWID/UUID" />
+    <br /><br />
     <label for="columnaAgregar">Selecciona columna:</label>
     <select id="columnaAgregar"></select>
-    <br><br>
+    <br /><br />
     <button onclick="agregarAHWID()">Agregar</button>
 </div>
 
-<br>
+<br />
 <button id="toggleBtn" onclick="toggleLista()">Mostrar lista</button>
 
 <div id="listaFlotante" class="caja-flotante">
@@ -275,55 +275,85 @@ body.dark #switchTema .toggle { transform: translateX(30px); }
 <div id="footerText">Verificación de HWID/UUID torneo de mujeres</div>
 
 <script>
-const CONTRASENA="torneo2025";
-let codigos=JSON.parse(localStorage.getItem("codigosGuardados"))||[];
-const nombresColumnas=[
-"STELLARA","DINGOS GHOST",":STEAMDANCE:","4LOV","LAS MALCRIADAS","ANGELS APOCALYPTIC",
-"Las Ohño","Woosh Girls","Blackyard Queens","BELLATRIX","PANDORA'S HORDE",
-"Super Stars","The show girls","D' la rose","Las Quecas","HOA","Los Trabas","Infinity Girls"
+const CONTRASENA = "torneo2025";
+let codigos = JSON.parse(localStorage.getItem("codigosGuardados")) || [];
+const nombresColumnas = [
+    "STELLARA",
+    "DINGOS GHOST",
+    ":STEAMDANCE:",
+    "4LOV",
+    "LAS MALCRIADAS",
+    "ANGELS APOCALYPTIC",
+    "Las Ohño",
+    "Woosh Girls",
+    "Blackyard Queens",
+    "BELLATRIX",
+    "PANDORA'S HORDE",
+    "Super Stars",
+    "The show girls",
+    "D' la rose",
+    "Las Quecas",
+    "HOA",
+    "Los Trabas",
+    "Infinity Girls"
 ];
 
-function escapeHtml(text){ return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function escapeHtml(text) {
+    return text.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
 
-const selector=document.getElementById("columnaSeleccion");
-const selectorAgregar=document.getElementById("columnaAgregar");
-const selectorAgregarDirecto=document.getElementById("columnaAgregarDirecto");
+const selector = document.getElementById("columnaSeleccion");
+const selectorAgregar = document.getElementById("columnaAgregar");
+const selectorAgregarDirecto = document.getElementById("columnaAgregarDirecto");
 
-nombresColumnas.forEach((nombre,index)=>{
-    const opt=document.createElement("option");
-    opt.value=index; opt.textContent=nombre; selector.appendChild(opt);
-    const opt2=document.createElement("option");
-    opt2.value=index; opt2.textContent=nombre; selectorAgregar.appendChild(opt2);
-    const opt3=document.createElement("option");
-    opt3.value=index; opt3.textContent=nombre; selectorAgregarDirecto.appendChild(opt3);
+nombresColumnas.forEach((nombre, index) => {
+    const opt = document.createElement("option");
+    opt.value = index;
+    opt.textContent = nombre;
+    selector.appendChild(opt);
+
+    const opt2 = document.createElement("option");
+    opt2.value = index;
+    opt2.textContent = nombre;
+    selectorAgregar.appendChild(opt2);
+
+    const opt3 = document.createElement("option");
+    opt3.value = index;
+    opt3.textContent = nombre;
+    selectorAgregarDirecto.appendChild(opt3);
 });
 
 function crearEncabezado() {
-    const encabezadoDiv=document.getElementById("encabezadoColumnas");
-    encabezadoDiv.innerHTML="";
-    nombresColumnas.forEach(nombre=>{
-        const col=document.createElement("div");
-        col.className="columna"; col.innerHTML=escapeHtml(nombre);
+    const encabezadoDiv = document.getElementById("encabezadoColumnas");
+    encabezadoDiv.innerHTML = "";
+    nombresColumnas.forEach(nombre => {
+        const col = document.createElement("div");
+        col.className = "columna";
+        col.innerHTML = escapeHtml(nombre);
         encabezadoDiv.appendChild(col);
     });
 }
 crearEncabezado();
 
-function actualizarLista(){
-    const filasDiv=document.getElementById("filasHWID");
-    filasDiv.innerHTML="";
-    if(codigos.length===0){
-        filasDiv.innerHTML=`<div class="fila"><div class="columna" colspan="${nombresColumnas.length}">No hay HWID/UUID guardados.</div></div>`;
+function actualizarLista() {
+    const filasDiv = document.getElementById("filasHWID");
+    filasDiv.innerHTML = "";
+    if (codigos.length === 0) {
+        filasDiv.innerHTML = `<div class="fila"><div class="columna" colspan="${nombresColumnas.length}">No hay HWID/UUID guardados.</div></div>`;
         return;
     }
-    const totalCols=nombresColumnas.length;
-    const totalFilas=Math.ceil(codigos.length/totalCols);
-    for(let i=0;i<totalFilas;i++){
-        const fila=document.createElement("div"); fila.className="fila";
-        for(let j=0;j<totalCols;j++){
-            const index=i*totalCols+j; const codigo=codigos[index]||"";
-            const boton=codigo?`<button class="delBtn" onclick="eliminarCodigo(${index})">Eliminar</button>`:"";
-            const col=document.createElement("div"); col.className="columna"; col.innerHTML=escapeHtml(codigo)+boton;
+    const totalCols = nombresColumnas.length;
+    const totalFilas = Math.ceil(codigos.length / totalCols);
+    for (let i = 0; i < totalFilas; i++) {
+        const fila = document.createElement("div");
+        fila.className = "fila";
+        for (let j = 0; j < totalCols; j++) {
+            const index = i * totalCols + j;
+            const codigo = codigos[index] || "";
+            const boton = codigo ? `<button class="delBtn" onclick="eliminarCodigo(${index})">Eliminar</button>` : "";
+            const col = document.createElement("div");
+            col.className = "columna";
+            col.innerHTML = escapeHtml(codigo) + boton;
             fila.appendChild(col);
         }
         filasDiv.appendChild(fila);
@@ -331,72 +361,116 @@ function actualizarLista(){
 }
 actualizarLista();
 
-function abrirAgregar(){ document.getElementById("cajaAgregar").classList.add("visible"); }
-function cerrarAgregar(){ document.getElementById("cajaAgregar").classList.remove("visible"); }
-function agregarAHWID(){
-    const input=document.getElementById("inputAgregar"); const valor=input.value.trim();
-    const colIndex=parseInt(document.getElementById("columnaAgregar").value);
-    if(!valor){ alert("HWID/UUID vacío"); return; }
-    let insertIndex=codigos.length;
-    while(insertIndex%nombresColumnas.length!==colIndex){ insertIndex++; }
-    codigos.splice(insertIndex,0,valor);
-    localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
-    input.value=""; cerrarAgregar(); actualizarLista();
+function abrirAgregar() {
+    document.getElementById("cajaAgregar").classList.add("visible");
+}
+function cerrarAgregar() {
+    document.getElementById("cajaAgregar").classList.remove("visible");
 }
 
-function agregarDirecto(){
-    const valor=document.getElementById("inputAgregarDirecto").value.trim();
-    const colIndex=parseInt(document.getElementById("columnaAgregarDirecto").value);
-    if(!valor){ alert("HWID/UUID vacío"); return; }
-    let insertIndex=codigos.length;
-    while(insertIndex%nombresColumnas.length!==colIndex){ insertIndex++; }
-    codigos.splice(insertIndex,0,valor);
-    localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
-    document.getElementById("inputAgregarDirecto").value="";
+// Nueva función para agregar respetando columnas y filas
+function agregarEnColumna(valor, colIndex) {
+    const numColumnas = nombresColumnas.length;
+    const totalFilas = Math.ceil(codigos.length / numColumnas);
+
+    let nuevaLista = codigos.slice();
+
+    // Buscar primer hueco vacío en la columna
+    let insertIndex = -1;
+    for (let fila = 0; fila < totalFilas; fila++) {
+        const idx = fila * numColumnas + colIndex;
+        if (idx >= nuevaLista.length || nuevaLista[idx] === "" || nuevaLista[idx] === undefined) {
+            insertIndex = idx;
+            break;
+        }
+    }
+
+    // Si no encontró hueco, agregamos nueva fila
+    if (insertIndex === -1) {
+        insertIndex = totalFilas * numColumnas + colIndex;
+    }
+
+    // Rellenar con "" si es necesario
+    while (nuevaLista.length < insertIndex) {
+        nuevaLista.push("");
+    }
+
+    // Insertar o reemplazar el valor
+    nuevaLista[insertIndex] = valor;
+
+    codigos = nuevaLista;
+    localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
     actualizarLista();
 }
 
-function eliminarCodigo(i){
+function agregarAHWID() {
+    const input = document.getElementById("inputAgregar");
+    const valor = input.value.trim();
+    const colIndex = parseInt(document.getElementById("columnaAgregar").value);
+    if (!valor) {
+        alert("HWID/UUID vacío");
+        return;
+    }
+    agregarEnColumna(valor, colIndex);
+    input.value = "";
+    cerrarAgregar();
+}
+
+function agregarDirecto() {
+    const valor = document.getElementById("inputAgregarDirecto").value.trim();
+    const colIndex = parseInt(document.getElementById("columnaAgregarDirecto").value);
+    if (!valor) {
+        alert("HWID/UUID vacío");
+        return;
+    }
+    agregarEnColumna(valor, colIndex);
+    document.getElementById("inputAgregarDirecto").value = "";
+}
+
+function eliminarCodigo(i) {
     const input = prompt("Ingrese la contraseña para eliminar este HWID/UUID:");
-    if(input===null) return;
-    if(input!==CONTRASENA){ alert("Contraseña incorrecta"); return; }
-    codigos.splice(i,1);
-    localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
+    if (input === null) return;
+    if (input !== CONTRASENA) {
+        alert("Contraseña incorrecta");
+        return;
+    }
+    codigos.splice(i, 1);
+    localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
     actualizarLista();
 }
 
-let listaVisible=false;
-function toggleLista(){
-    listaVisible=!listaVisible;
-    document.getElementById("listaFlotante").classList.toggle("visible",listaVisible);
-    document.getElementById("toggleBtn").textContent = listaVisible?"Lista abierta":"Mostrar lista";
+let listaVisible = false;
+function toggleLista() {
+    listaVisible = !listaVisible;
+    document.getElementById("listaFlotante").classList.toggle("visible", listaVisible);
+    document.getElementById("toggleBtn").textContent = listaVisible ? "Lista abierta" : "Mostrar lista";
 }
 
-function verificar(){
-    const c=document.getElementById("codigoVerificar").value.trim();
-    const r=document.getElementById("resultado");
-    const colIndex=parseInt(document.getElementById("columnaSeleccion").value);
-    const colHWIDs=codigos.filter((_,i)=>i%nombresColumnas.length===colIndex);
-    if(colHWIDs.includes(c)){
-        r.textContent="✔ Correcto: HWID/UUID verificado en "+nombresColumnas[colIndex];
-        r.style.color="lime";
-    }else{
-        r.textContent="✘ Incorrecto: no se encontró en "+nombresColumnas[colIndex];
-        r.style.color="red";
+function verificar() {
+    const c = document.getElementById("codigoVerificar").value.trim();
+    const r = document.getElementById("resultado");
+    const colIndex = parseInt(document.getElementById("columnaSeleccion").value);
+    const colHWIDs = codigos.filter((_, i) => i % nombresColumnas.length === colIndex);
+    if (colHWIDs.includes(c)) {
+        r.textContent = "✔ Correcto: HWID/UUID verificado en " + nombresColumnas[colIndex];
+        r.style.color = "lime";
+    } else {
+        r.textContent = "✘ Incorrecto: no se encontró en " + nombresColumnas[colIndex];
+        r.style.color = "red";
     }
 }
 
-function toggleTema(){
+function toggleTema() {
     document.body.classList.toggle("dark");
-    document.getElementById("switchText").textContent=document.body.classList.contains("dark")?"Modo Oscuro":"Modo Claro";
+    document.getElementById("switchText").textContent = document.body.classList.contains("dark") ? "Modo Oscuro" : "Modo Claro";
 }
 
-window.onload=function(){
-    const bienvenida=document.getElementById("bienvenida");
+window.onload = function () {
+    const bienvenida = document.getElementById("bienvenida");
     bienvenida.classList.add("visible");
-    setTimeout(()=>cerrarBienvenida(),5000);
+    setTimeout(() => cerrarBienvenida(), 5000);
 }
-function cerrarBienvenida(){ document.getElementById("bienvenida").classList.remove("visible"); }
+function cerrarBienvenida() { document.getElementById("bienvenida").classList.remove("visible"); }
 </script>
 
 </body>
