@@ -434,7 +434,8 @@ function eliminarCodigo(i) {
         alert("Contraseña incorrecta");
         return;
     }
-    codigos.splice(i, 1);
+    // En lugar de eliminar el elemento, lo vaciamos para mantener estructura
+    codigos[i] = "";
     localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
     actualizarLista();
 }
