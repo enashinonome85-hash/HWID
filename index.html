@@ -225,20 +225,20 @@ body.dark #switchTema .toggle {
 
 <!-- Mensaje de bienvenida -->
 <div id="bienvenida" class="bienvenida">
-    <h2>¡Bienvenido! 👋</h2>
+    <h2>¡Bienvenido!</h2>
     <p>Gracias por usar el verificador de HWID / UUID.</p>
     <button onclick="cerrarBienvenida()">Cerrar</button>
 </div>
 
-<h1>🔐 Verificación de HWID y UUID</h1>
+<h1>Verificación de HWID y UUID</h1>
 
-<h2>📌 Guardar HWID / UUID</h2>
+<h2>Guardar HWID / UUID</h2>
 <input id="nuevoCodigo" placeholder="Ingresa HWID o UUID para guardar">
 <button onclick="guardarCodigo()">Guardar</button>
 
 <br><br>
 
-<button id="toggleBtn" onclick="toggleLista()">👁️ Mostrar lista</button>
+<button id="toggleBtn" onclick="toggleLista()">Mostrar lista</button>
 
 <div id="listaFlotante" class="caja-flotante">
     <button class="closeBtn" onclick="toggleLista()">X</button>
@@ -248,12 +248,14 @@ body.dark #switchTema .toggle {
 
 <hr>
 
-<h2>🔎 Verificar HWID / UUID</h2>
+<h2>Verificar HWID / UUID</h2>
 <input id="codigoVerificar" placeholder="Ingresa HWID o UUID a verificar">
 <button onclick="verificar()">Verificar</button>
 <div id="resultado"></div>
 
 <script>
+const CONTRASENA = "torneo2025";
+
 let codigos = JSON.parse(localStorage.getItem("codigosGuardados")) || [];
 const listaDiv = document.getElementById("lista");
 const listaFlotante = document.getElementById("listaFlotante");
@@ -283,12 +285,17 @@ function guardarCodigo() {
 function verificar() {
     const c = document.getElementById("codigoVerificar").value.trim();
     const r = document.getElementById("resultado");
-    if(codigos.includes(c)) { r.textContent="✔ Correcto: HWID/UUID verificado"; r.style.color="lime"; }
-    else { r.textContent="✘ Incorrecto: este HWID/UUID no está registrado"; r.style.color="red"; }
+    if(codigos.includes(c)) { r.textContent="Correcto: HWID/UUID verificado"; r.style.color="lime"; }
+    else { r.textContent="Incorrecto: este HWID/UUID no está registrado"; r.style.color="red"; }
 }
 
 function eliminarCodigo(i) {
-    if(!confirm("¿Seguro que deseas eliminar este HWID/UUID?")) return;
+    const input = prompt("Ingrese la contraseña para eliminar este HWID/UUID:");
+    if (input === null) return; // Canceló
+    if (input !== CONTRASENA) {
+        alert("Contraseña incorrecta. No se eliminó el HWID/UUID.");
+        return;
+    }
     codigos.splice(i,1);
     localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
     actualizarLista();
@@ -298,10 +305,10 @@ let listaVisible=false;
 function toggleLista() {
     listaVisible=!listaVisible;
     listaFlotante.classList.toggle("visible", listaVisible);
-    toggleBtn.textContent = listaVisible ? "🔒 Lista abierta" : "👁️ Mostrar lista";
+    toggleBtn.textContent = listaVisible ? "Lista abierta" : "Mostrar lista";
 }
 
-// Modo Claro/Oscuro con texto dinámico
+// Modo Claro/Oscuro
 const switchTema = document.getElementById("switchTema");
 function toggleTema() {
     document.body.classList.toggle("dark");
