@@ -1,16 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1"> <!-- 🔥 NECESARIO PARA MÓVIL -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Verificación de HWID y UUID</title>
 
     <style>
+        :root {
+            /* MODO CLARO */
+            --bg-overlay: rgba(255, 255, 255, 0.15);
+            --panel-bg: rgba(255, 255, 255, 0.85);
+            --text-color: #111;
+        }
+
+        body.dark {
+            /* MODO OSCURO */
+            --bg-overlay: rgba(0, 0, 0, 0.45);
+            --panel-bg: rgba(0, 0, 0, 0.75);
+            --text-color: #fff;
+        }
+
         body {
             font-family: Arial, sans-serif;
             margin: 40px;
-            color: white;
+            color: var(--text-color);
             text-align: center;
+
+            /* Fondo fijo */
             background-image: url('20240731_073957.jpg');
             background-size: cover;
             background-position: center;
@@ -18,7 +35,7 @@
         }
 
         h1, h2 {
-            text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, .4);
         }
 
         input {
@@ -28,6 +45,8 @@
             border-radius: 8px;
             border: none;
             outline: none;
+            background: var(--panel-bg);
+            color: var(--text-color);
         }
 
         button {
@@ -40,25 +59,25 @@
             background: #2980b9;
             color: white;
             font-weight: bold;
-            transition: 0.2s;
+            transition: .2s;
         }
+
         button:hover {
             background: #3498db;
         }
 
-        /* Resultado */
         #resultado {
             margin-top: 20px;
             font-size: 20px;
             font-weight: bold;
         }
 
-        /* Caja flotante (Responsive) */
+        /* Caja flotante */
         .caja-flotante {
             width: 380px;
-            max-width: 90%; /* 🔥 Para móvil */
+            max-width: 90%;
             max-height: 320px;
-            background: rgba(0, 0, 0, 0.82);
+            background: var(--panel-bg);
             padding: 20px;
             border-radius: 15px;
             position: fixed;
@@ -66,7 +85,7 @@
             left: 50%;
             transform: translateX(-50%);
             display: none;
-            color: white;
+            color: var(--text-color);
             backdrop-filter: blur(6px);
             box-shadow: 0px 0px 20px #000;
             opacity: 0;
@@ -90,9 +109,6 @@
             top: 12px;
             right: 12px;
         }
-        .closeBtn:hover {
-            background: #e74c3c;
-        }
 
         .lista-scroll {
             max-height: 230px;
@@ -103,7 +119,7 @@
         .item {
             margin: 6px 0;
             padding: 6px;
-            background: rgba(255,255,255,0.08);
+            background: var(--bg-overlay);
             border-radius: 6px;
         }
 
@@ -117,31 +133,94 @@
             border-radius: 5px;
         }
 
-        /* SCROLL */
+        /* Scroll */
         .lista-scroll::-webkit-scrollbar {
             width: 8px;
         }
+
         .lista-scroll::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.4);
+            background: rgba(255,255,255,0.4);
             border-radius: 3px;
         }
 
-        /* ---------------------------------------------------------
-           📱📱 OPTIMIZACIÓN PARA TELÉFONOS (MOBILE FIRST)
-        --------------------------------------------------------- */
+        /* =============================
+           📢 Mensaje de bienvenida
+        ==============================*/
+        .bienvenida {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            background: var(--panel-bg);
+            color: var(--text-color);
+            padding: 25px 30px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0px 0px 20px #000;
+            text-align: center;
+            width: 320px;
+            max-width: 90%;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .4s ease, transform .4s ease;
+            z-index: 9999;
+        }
+
+        .bienvenida.visible {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+            pointer-events: auto;
+        }
+
+        /* =============================
+           🌗 INTERRUPTOR DE TEMA
+        ============================== */
+        #switchTema {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 60px;
+            height: 30px;
+            background: var(--panel-bg);
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 0 10px #00000060;
+            display: flex;
+            align-items: center;
+            padding: 3px;
+            transition: background .3s ease;
+            z-index: 999;
+        }
+
+        #switchTema .toggle {
+            width: 24px;
+            height: 24px;
+            background: var(--text-color);
+            border-radius: 50%;
+            transition: transform .3s ease, background .3s ease;
+        }
+
+        #switchTema .icono {
+            position: absolute;
+            font-size: 17px;
+            pointer-events: none;
+        }
+
+        #sol { left: 8px; }
+        #luna { right: 8px; }
+
+        body.dark #switchTema .toggle {
+            transform: translateX(30px);
+        }
+
+        /* ============================
+           Responsive Móvil
+        ============================= */
         @media (max-width: 600px) {
+            body { margin: 20px; }
 
-            body {
-                margin: 20px;
-            }
-
-            h1 {
-                font-size: 26px;
-            }
-
-            h2 {
-                font-size: 20px;
-            }
+            h1 { font-size: 26px; }
+            h2 { font-size: 20px; }
 
             input {
                 width: 90%;
@@ -155,36 +234,52 @@
                 font-size: 18px;
             }
 
-            #resultado {
-                font-size: 22px;
+            #switchTema {
+                width: 50px;
+                height: 26px;
+                top: 15px;
+                right: 15px;
             }
+
+            #switchTema .toggle {
+                width: 20px;
+                height: 20px;
+            }
+
+            body.dark #switchTema .toggle {
+                transform: translateX(24px);
+            }
+
+            #switchTema .icono { font-size: 15px; }
 
             .caja-flotante {
                 top: 80px;
-                padding: 15px;
-                border-radius: 12px;
-                max-height: 70vh; /* pantalla vertical */
+                max-height: 70vh;
             }
 
             .lista-scroll {
                 max-height: 55vh;
-            }
-
-            .item {
-                font-size: 16px;
-                padding: 10px;
-            }
-
-            .delBtn {
-                padding: 6px 12px;
-                font-size: 15px;
             }
         }
 
     </style>
 </head>
 
-<body>
+<body class="dark">
+
+    <!-- INTERRUPTOR DE TEMA -->
+    <div id="switchTema" onclick="toggleTema()">
+        <span id="sol" class="icono">☀️</span>
+        <span id="luna" class="icono">🌙</span>
+        <div class="toggle"></div>
+    </div>
+
+    <!-- MENSAJE DE BIENVENIDA -->
+    <div id="bienvenida" class="bienvenida">
+        <h2>¡Bienvenido! 👋</h2>
+        <p>Gracias por usar el verificador de HWID / UUID.</p>
+        <button onclick="cerrarBienvenida()">Cerrar</button>
+    </div>
 
     <h1>🔐 Verificación de HWID y UUID</h1>
 
@@ -217,6 +312,9 @@
         const listaFlotante = document.getElementById("listaFlotante");
         const toggleBtn = document.getElementById("toggleBtn");
 
+        /* =============================
+           Lista HWID/UUID
+        ==============================*/
         function actualizarLista() {
             if (codigos.length === 0) {
                 listaDiv.innerHTML = "No hay HWID/UUID guardados.";
@@ -235,6 +333,7 @@
 
         function guardarCodigo() {
             const codigo = document.getElementById("nuevoCodigo").value.trim();
+
             if (!codigo) return alert("El HWID/UUID no puede estar vacío");
             if (codigos.includes(codigo)) return alert("Este HWID/UUID ya está guardado");
 
@@ -246,14 +345,14 @@
 
         function verificar() {
             const codigo = document.getElementById("codigoVerificar").value.trim();
-            const resultado = document.getElementById("resultado");
+            const r = document.getElementById("resultado");
 
             if (codigos.includes(codigo)) {
-                resultado.textContent = "✔ Correcto: HWID/UUID verificado";
-                resultado.style.color = "lime";
+                r.textContent = "✔ Correcto: HWID/UUID verificado";
+                r.style.color = "lime";
             } else {
-                resultado.textContent = "✘ Incorrecto: este HWID/UUID no está registrado";
-                resultado.style.color = "red";
+                r.textContent = "✘ Incorrecto: este HWID/UUID no está registrado";
+                r.style.color = "red";
             }
         }
 
@@ -272,6 +371,27 @@
             toggleBtn.textContent = listaVisible ? "🔒 Lista abierta" : "👁️ Mostrar lista";
         }
 
+        /* =============================
+           MODO OSCURO / CLARO
+        ==============================*/
+        function toggleTema() {
+            document.body.classList.toggle("dark");
+        }
+
+        /* =============================
+           MENSAJE DE BIENVENIDA
+        ==============================*/
+        window.onload = function () {
+            const bienvenida = document.getElementById("bienvenida");
+            bienvenida.classList.add("visible");
+
+            setTimeout(() => cerrarBienvenida(), 5000);
+        };
+
+        function cerrarBienvenida() {
+            document.getElementById("bienvenida").classList.remove("visible");
+        }
+
         function escapeHtml(text) {
             return text.replace(/[&<>"']/g, c => ({
                 "&": "&amp;",
@@ -285,6 +405,3 @@
 
 </body>
 </html>
-
-</html>
-
