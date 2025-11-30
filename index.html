@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Verificación de HWID y YouTube Fondo</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verificación HWID / UUID con Fondo YouTube</title>
 <style>
 :root {
-    --bg-overlay: rgba(255, 255, 255, 0.15);
-    --panel-bg: rgba(255, 255, 255, 0.85);
+    --bg-overlay: rgba(255,255,255,0.15);
+    --panel-bg: rgba(255,255,255,0.85);
     --text-color: #111;
 }
 body.dark {
-    --bg-overlay: rgba(0, 0, 0, 0.45);
-    --panel-bg: rgba(0, 0, 0, 0.75);
+    --bg-overlay: rgba(0,0,0,0.45);
+    --panel-bg: rgba(0,0,0,0.75);
     --text-color: #fff;
 }
 body {
@@ -24,7 +24,6 @@ body {
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
-    transition: background 0.5s ease;
 }
 h1, h2 { text-shadow: 2px 2px 6px rgba(0,0,0,.4); }
 input, select {
@@ -50,10 +49,10 @@ button {
     transition: .2s;
 }
 button:hover { background: #3498db; }
-#resultado, #resultadoAgregar { margin-top: 12px; font-size: 18px; font-weight: bold; min-height: 24px; }
+#resultado, #resultadoAgregar { margin-top: 20px; font-weight: bold; min-height: 24px; }
 .caja-flotante {
     width: 90%;
-    max-width: 500px;
+    max-width: 450px;
     background: var(--panel-bg);
     padding: 20px;
     border-radius: 15px;
@@ -74,76 +73,78 @@ button:hover { background: #3498db; }
 .lista-scroll { overflow-y: auto; max-height: 300px; margin-top: 10px; }
 .tabla { display: flex; flex-direction: column; width: 100%; }
 .fila { display: flex; }
-.columna { flex: 1; min-width: 150px; padding: 6px; border-bottom: 1px solid rgba(0,0,0,0.2); word-break: break-word; text-align: center; position: relative; }
+.columna { flex: 1; min-width: 150px; padding: 6px; border-bottom: 1px solid rgba(0,0,0,0.2); word-break: break-word; text-align: center; }
 .encabezado .columna { font-weight: bold; background: var(--bg-overlay); }
 .delBtn { background-color: red; color: white; border: none; padding: 4px 8px; font-size: 12px; cursor: pointer; border-radius: 4px; display: block; margin: 5px auto 0; }
-.bienvenida { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.7); background: var(--panel-bg); color: var(--text-color); padding: 25px 30px; border-radius: 12px; backdrop-filter: blur(8px); box-shadow: 0px 0px 20px #000; text-align: center; width: 320px; max-width: 90%; opacity: 0; pointer-events: none; transition: opacity .4s ease, transform .4s ease; z-index: 9999; }
+.bienvenida { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.6); background: var(--panel-bg); color: var(--text-color); padding: 30px 35px; border-radius: 16px; backdrop-filter: blur(12px); box-shadow: 0px 0px 30px rgba(0,0,0,0.5); text-align: center; width: 350px; max-width: 90%; opacity: 0; pointer-events: none; transition: opacity .45s ease, transform .45s ease; z-index: 9999; }
 .bienvenida.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
+.bienvenida button { margin-top: 20px; padding: 10px 18px; background: #27ae60; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold; transition: .3s; }
+.bienvenida button:hover { background: #2ecc71; }
+#fondoBienvenida { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); z-index: 9998; opacity: 0; pointer-events: none; transition: opacity .4s ease; }
+#fondoBienvenida.visible { opacity: 1; pointer-events: auto; }
 #switchContainer { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; align-items: center; z-index: 9999; }
 #switchText { margin-bottom: 6px; font-weight: bold; color: var(--text-color); }
 #switchTema { width: 60px; height: 30px; background: var(--panel-bg); border-radius: 50px; cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,0.4); display: flex; align-items: center; padding: 3px; transition: background .3s ease, transform .3s ease; }
 #switchTema .toggle { width: 24px; height: 24px; background: var(--text-color); border-radius: 50%; transition: transform .3s ease, background .3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
 body.dark #switchTema .toggle { transform: translateX(30px); }
+#switchTema:hover { transform: scale(1.1); }
 #footerText { position: fixed; bottom: 20px; left: 20px; background: var(--bg-overlay); padding: 8px 12px; border-radius: 8px; color: var(--text-color); font-weight: bold; font-size: 14px; z-index: 999; }
-#youtubeContainer { position: fixed; top:0; left:0; width:100%; height:100%; z-index:0; display:flex; justify-content:center; align-items:center; pointer-events:none; }
-#youtubeSearch { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); z-index:9999; display:flex; gap:5px; }
-#youtubeResults { position: fixed; bottom: 60px; left: 50%; transform: translateX(-50%); max-height:200px; overflow-y:auto; background: var(--panel-bg); padding:10px; border-radius:10px; width:80%; max-width:500px; display:none; z-index:9999; }
-#youtubeResults div { cursor:pointer; padding:5px; border-bottom:1px solid rgba(0,0,0,0.2); }
-#youtubeResults div:hover { background: rgba(0,0,0,0.1); }
+#importExportContainer { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
+#youtubeContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
 </style>
 </head>
 <body>
 
-<!-- Interruptor -->
 <div id="switchContainer">
     <div id="switchText">Modo Claro</div>
     <div id="switchTema" onclick="toggleTema()"><div class="toggle"></div></div>
 </div>
 
-<!-- Bienvenida -->
+<div id="fondoBienvenida"></div>
 <div id="bienvenida" class="bienvenida">
     <h2>¡Bienvenido!</h2>
     <p>Gracias por usar el verificador de HWID / UUID.</p>
-    <button onclick="cerrarBienvenida()">Cerrar</button>
+    <button onclick="cerrarBienvenida()">Comenzar</button>
 </div>
+
+<div id="youtubeContainer"></div>
 
 <h1>Verificación de HWID y UUID</h1>
 
 <h2>🔎 Verificar HWID / UUID</h2>
 <input id="codigoVerificar" placeholder="Ingresa HWID o UUID" />
-<br /><br />
-<label for="columnaSeleccion">Selecciona columna:</label>
+<br><br>
+<label for="columnaSeleccion">Selecciona columna para verificar:</label>
 <select id="columnaSeleccion"></select>
 <button onclick="verificar()">Verificar</button>
 <div id="resultado"></div>
 
-<hr />
+<hr>
 
 <h2>📌 Agregar HWID / UUID</h2>
 <input id="inputAgregarDirecto" placeholder="Ingresa HWID/UUID" />
-<br /><br />
-<label for="columnaAgregarDirecto">Selecciona columna:</label>
+<br><br>
+<label for="columnaAgregarDirecto">Selecciona columna para agregar:</label>
 <select id="columnaAgregarDirecto"></select>
-<br /><br />
+<br><br>
 <button onclick="agregarDirecto()">Agregar</button>
 <div id="resultadoAgregar"></div>
-<br />
-<button onclick="abrirAgregar()">Agregar con caja flotante</button>
 
+<br>
+<button onclick="abrirAgregar()">Agregar con caja flotante</button>
 <div id="cajaAgregar" class="caja-flotante">
     <button class="closeBtn" onclick="cerrarAgregar()">X</button>
     <h3>Agregar HWID / UUID</h3>
     <input id="inputAgregar" placeholder="Ingresa HWID/UUID" />
-    <br /><br />
+    <br><br>
     <label for="columnaAgregar">Selecciona columna:</label>
     <select id="columnaAgregar"></select>
-    <br /><br />
+    <br><br>
     <button onclick="agregarAHWID()">Agregar</button>
 </div>
 
-<br />
+<br>
 <button id="toggleBtn" onclick="toggleLista()">Mostrar lista</button>
-
 <div id="listaFlotante" class="caja-flotante">
     <button class="closeBtn" onclick="toggleLista()">X</button>
     <div id="lista" class="lista-scroll">
@@ -152,25 +153,19 @@ body.dark #switchTema .toggle { transform: translateX(30px); }
             <div id="filasHWID"></div>
         </div>
     </div>
+    <div id="importExportContainer">
+        <button onclick="exportarLista()">Exportar</button>
+        <button onclick="importarLista()">Importar</button>
+    </div>
 </div>
 
 <div id="footerText">Verificación de HWID/UUID torneo de mujeres</div>
 
-<!-- YouTube -->
-<div id="youtubeContainer"></div>
-<div id="youtubeSearch">
-    <input type="text" id="youtubeInput" placeholder="Buscar video de YouTube" />
-    <button onclick="buscarVideo()">Buscar</button>
-</div>
-<div id="youtubeResults"></div>
-
+<script src="https://www.youtube.com/iframe_api"></script>
 <script>
 const CONTRASENA = "torneo2025";
 let codigos = JSON.parse(localStorage.getItem("codigosGuardados")) || [];
 const nombresColumnas = ["STELLARA","DINGOS GHOST",":STEAMDANCE:","4LOV","LAS MALCRIADAS","ANGELS APOCALYPTIC","Las Ohño","Woosh Girls","Blackyard Queens","BELLATRIX","PANDORA'S HORDE","Super Stars","The show girls","D' la rose","Las Quecas","HOA","Los Trabas","Infinity Girls"];
-const YT_KEY = "AIzaSyDuoFd0xcefF16-PZUgEjlrLrqSMBxtCsc";
-
-function escapeHtml(text) { return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
 const selector = document.getElementById("columnaSeleccion");
 const selectorAgregar = document.getElementById("columnaAgregar");
@@ -178,32 +173,39 @@ const selectorAgregarDirecto = document.getElementById("columnaAgregarDirecto");
 nombresColumnas.forEach((nombre,index)=>{
     [selector,selectorAgregar,selectorAgregarDirecto].forEach(sel=>{
         const opt=document.createElement("option");
-        opt.value=index; opt.textContent=nombre;
-        sel.appendChild(opt);
+        opt.value=index; opt.textContent=nombre; sel.appendChild(opt);
     });
 });
 
+function escapeHtml(text) { return text.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+
 function crearEncabezado(){
-    const encabezadoDiv=document.getElementById("encabezadoColumnas"); encabezadoDiv.innerHTML="";
+    const encabezadoDiv=document.getElementById("encabezadoColumnas");
+    encabezadoDiv.innerHTML="";
     nombresColumnas.forEach(nombre=>{
         const col=document.createElement("div");
-        col.className="columna"; col.innerHTML=escapeHtml(nombre);
+        col.className="columna";
+        col.innerHTML=escapeHtml(nombre);
         encabezadoDiv.appendChild(col);
     });
 }
 crearEncabezado();
 
 function actualizarLista(){
-    const filasDiv=document.getElementById("filasHWID"); filasDiv.innerHTML="";
-    if(codigos.length===0){ filasDiv.innerHTML=`<div class="fila"><div class="columna" colspan="${nombresColumnas.length}">No hay HWID/UUID guardados.</div></div>`; return;}
+    const filasDiv=document.getElementById("filasHWID");
+    filasDiv.innerHTML="";
+    if(codigos.length===0){ filasDiv.innerHTML=`<div class="fila"><div class="columna" colspan="${nombresColumnas.length}">No hay HWID/UUID guardados.</div></div>`; return; }
     const totalCols=nombresColumnas.length;
     const totalFilas=Math.ceil(codigos.length/totalCols);
     for(let i=0;i<totalFilas;i++){
         const fila=document.createElement("div"); fila.className="fila";
         for(let j=0;j<totalCols;j++){
-            const index=i*totalCols+j; const codigo=codigos[index]||"";
+            const index=i*totalCols+j;
+            const codigo=codigos[index]||"";
             const boton=codigo?`<button class="delBtn" onclick="eliminarCodigo(${index})">Eliminar</button>`:"";
-            const col=document.createElement("div"); col.className="columna"; col.innerHTML=escapeHtml(codigo)+boton;
+            const col=document.createElement("div");
+            col.className="columna";
+            col.innerHTML=escapeHtml(codigo)+boton;
             fila.appendChild(col);
         }
         filasDiv.appendChild(fila);
@@ -211,98 +213,113 @@ function actualizarLista(){
 }
 actualizarLista();
 
-function abrirAgregar(){document.getElementById("cajaAgregar").classList.add("visible");}
-function cerrarAgregar(){document.getElementById("cajaAgregar").classList.remove("visible");}
-
-function existeHWID(valor){return codigos.includes(valor);}
+function abrirAgregar(){ document.getElementById("cajaAgregar").classList.add("visible"); }
+function cerrarAgregar(){ document.getElementById("cajaAgregar").classList.remove("visible"); }
+function existeHWID(valor){ return codigos.includes(valor); }
 
 function agregarEnColumna(valor,colIndex){
     const resultadoAgregarDiv=document.getElementById("resultadoAgregar");
     resultadoAgregarDiv.textContent=""; resultadoAgregarDiv.style.color="";
-    if(existeHWID(valor)){ resultadoAgregarDiv.textContent="✘ Este HWID/UUID ya está registrado."; resultadoAgregarDiv.style.color="red"; return false;}
+    if(existeHWID(valor)){ resultadoAgregarDiv.textContent="✘ Este HWID/UUID ya está registrado."; resultadoAgregarDiv.style.color="red"; return false; }
     const numColumnas=nombresColumnas.length;
     const totalFilas=Math.ceil(codigos.length/numColumnas);
     let nuevaLista=codigos.slice();
     let insertIndex=-1;
     for(let fila=0;fila<totalFilas;fila++){
         const idx=fila*numColumnas+colIndex;
-        if(idx>=nuevaLista.length||nuevaLista[idx]===""||nuevaLista[idx]===undefined){insertIndex=idx;break;}
+        if(idx>=nuevaLista.length||nuevaLista[idx]===""||nuevaLista[idx]===undefined){ insertIndex=idx; break; }
     }
-    if(insertIndex===-1){ insertIndex=totalFilas*numColumnas+colIndex;}
-    while(nuevaLista.length<insertIndex){ nuevaLista.push("");}
+    if(insertIndex===-1) insertIndex=totalFilas*numColumnas+colIndex;
+    while(nuevaLista.length<insertIndex) nuevaLista.push("");
     nuevaLista[insertIndex]=valor;
-    codigos=nuevaLista; localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
+    codigos=nuevaLista;
+    localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
     actualizarLista();
     resultadoAgregarDiv.textContent="✔ HWID/UUID agregado correctamente."; resultadoAgregarDiv.style.color="lime";
     return true;
 }
 
 function agregarAHWID(){
-    const valor=document.getElementById("inputAgregar").value.trim();
+    const input=document.getElementById("inputAgregar");
+    const valor=input.value.trim();
     const colIndex=parseInt(document.getElementById("columnaAgregar").value);
-    if(!valor){alert("HWID/UUID vacío"); return;}
-    if(agregarEnColumna(valor,colIndex)){ document.getElementById("inputAgregar").value=""; cerrarAgregar();}
+    if(!valor){ alert("HWID/UUID vacío"); return; }
+    if(agregarEnColumna(valor,colIndex)){ input.value=""; cerrarAgregar(); }
 }
+
 function agregarDirecto(){
     const valor=document.getElementById("inputAgregarDirecto").value.trim();
     const colIndex=parseInt(document.getElementById("columnaAgregarDirecto").value);
-    if(!valor){alert("HWID/UUID vacío"); return;}
-    agregarEnColumna(valor,colIndex); document.getElementById("inputAgregarDirecto").value="";
+    if(!valor){ alert("HWID/UUID vacío"); return; }
+    if(agregarEnColumna(valor,colIndex)) document.getElementById("inputAgregarDirecto").value="";
 }
+
 function eliminarCodigo(i){
     const input=prompt("Ingrese la contraseña para eliminar este HWID/UUID:");
     if(input===null) return;
-    if(input!==CONTRASENA){alert("Contraseña incorrecta"); return;}
-    codigos[i]=""; localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
+    if(input!==CONTRASENA){ alert("Contraseña incorrecta"); return; }
+    codigos[i]="";
+    localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
     actualizarLista();
 }
+
 let listaVisible=false;
 function toggleLista(){
     listaVisible=!listaVisible;
     document.getElementById("listaFlotante").classList.toggle("visible",listaVisible);
     document.getElementById("toggleBtn").textContent=listaVisible?"Lista abierta":"Mostrar lista";
 }
+
 function verificar(){
     const c=document.getElementById("codigoVerificar").value.trim();
     const r=document.getElementById("resultado");
     const colIndex=parseInt(document.getElementById("columnaSeleccion").value);
     const colHWIDs=codigos.filter((_,i)=>i%nombresColumnas.length===colIndex);
-    if(colHWIDs.includes(c)){ r.textContent="✔ Correcto: HWID/UUID verificado en "+nombresColumnas[colIndex]; r.style.color="lime";}
-    else{ r.textContent="✘ Incorrecto: no se encontró en "+nombresColumnas[colIndex]; r.style.color="red";}
+    if(colHWIDs.includes(c)){ r.textContent="✔ Correcto: HWID/UUID verificado en "+nombresColumnas[colIndex]; r.style.color="lime"; }
+    else{ r.textContent="✘ Incorrecto: no se encontró en "+nombresColumnas[colIndex]; r.style.color="red"; }
 }
+
 function toggleTema(){
     document.body.classList.toggle("dark");
     document.getElementById("switchText").textContent=document.body.classList.contains("dark")?"Modo Oscuro":"Modo Claro";
 }
-function cerrarBienvenida(){ document.getElementById("bienvenida").classList.remove("visible"); }
 
-// --------------------- YouTube ---------------------
-function buscarVideo(){
-    const query=document.getElementById("youtubeInput").value.trim();
-    if(!query) return;
-    fetch(`https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&q=${encodeURIComponent(query)}&key=${YT_KEY}&maxResults=5`)
-    .then(res=>res.json())
-    .then(data=>{
-        const resDiv=document.getElementById("youtubeResults"); resDiv.innerHTML=""; resDiv.style.display="block";
-        data.items.forEach(item=>{
-            const div=document.createElement("div");
-            div.textContent=item.snippet.title;
-            div.onclick=()=>{ setFondoVideo(item.id.videoId); resDiv.style.display="none"; };
-            resDiv.appendChild(div);
-        });
+function mostrarBienvenida(){
+    if(localStorage.getItem("bienvenidaVISTA")==="1") return;
+    const b=document.getElementById("bienvenida");
+    const f=document.getElementById("fondoBienvenida");
+    b.style.display="block"; f.style.display="block";
+    setTimeout(()=>{ b.classList.add("visible"); f.classList.add("visible"); },50);
+}
+function cerrarBienvenida(){
+    const b=document.getElementById("bienvenida");
+    const f=document.getElementById("fondoBienvenida");
+    b.classList.remove("visible"); f.classList.remove("visible");
+    localStorage.setItem("bienvenidaVISTA","1");
+    setTimeout(()=>{ b.style.display="none"; f.style.display="none"; },450);
+}
+document.getElementById("fondoBienvenida").onclick=cerrarBienvenida;
+window.onload=mostrarBienvenida;
+
+// YouTube API
+let player;
+function onYouTubeIframeAPIReady(){
+    player = new YT.Player('youtubeContainer',{
+        height:'100%', width:'100%',
+        videoId:'dQw4w9WgXcQ', // Cambia por tu video
+        playerVars:{ autoplay:0, controls:0, loop:0, modestbranding:1 },
+        events:{ 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
     });
 }
-function setFondoVideo(videoId){
-    const container=document.getElementById("youtubeContainer");
-    container.innerHTML=`<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&controls=0&loop=1&playlist=${videoId}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-    container.style.pointerEvents="auto";
+function onPlayerReady(event){ /* Puedes iniciar reproducción aquí si quieres */ }
+function onPlayerStateChange(event){
+    if(event.data==YT.PlayerState.ENDED){
+        document.body.style.backgroundImage="url('20240731_073957.jpg')";
+    }
 }
-
-// --------------------- Inicio ---------------------
-window.onload=function(){
-    document.getElementById("bienvenida").classList.add("visible");
-    setTimeout(()=>cerrarBienvenida(),5000);
-};
+function reproducirFondoVideo(){
+    if(player) { player.playVideo(); document.body.style.backgroundImage="none"; }
+}
 </script>
 </body>
 </html>
