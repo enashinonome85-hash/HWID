@@ -220,7 +220,17 @@ body.dark #switchTema .toggle { transform: translateX(30px); }
 <hr>
 
 <h2>📌 Agregar HWID / UUID</h2>
-<button onclick="abrirAgregar()">Agregar HWID/UUID</button>
+
+<!-- Agregar HWID directamente -->
+<input id="inputAgregarDirecto" placeholder="Ingresa HWID/UUID">
+<br><br>
+<label for="columnaAgregarDirecto">Selecciona columna para agregar:</label>
+<select id="columnaAgregarDirecto"></select>
+<br><br>
+<button onclick="agregarDirecto()">Agregar</button>
+
+<br><br>
+<button onclick="abrirAgregar()">Agregar con caja flotante</button>
 
 <!-- Caja flotante para agregar HWID/UUID -->
 <div id="cajaAgregar" class="caja-flotante">
@@ -258,14 +268,18 @@ const nombresColumnas=[
 
 function escapeHtml(text){ return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
-// Selector columna verificar
+// Selector columna verificar y agregar
 const selector=document.getElementById("columnaSeleccion");
 const selectorAgregar=document.getElementById("columnaAgregar");
+const selectorAgregarDirecto=document.getElementById("columnaAgregarDirecto");
+
 nombresColumnas.forEach((nombre,index)=>{
     const opt=document.createElement("option");
     opt.value=index; opt.textContent=nombre; selector.appendChild(opt);
     const opt2=document.createElement("option");
     opt2.value=index; opt2.textContent=nombre; selectorAgregar.appendChild(opt2);
+    const opt3=document.createElement("option");
+    opt3.value=index; opt3.textContent=nombre; selectorAgregarDirecto.appendChild(opt3);
 });
 
 // Crear encabezado tabla
@@ -310,13 +324,24 @@ function agregarAHWID(){
     const input=document.getElementById("inputAgregar"); const valor=input.value.trim();
     const colIndex=parseInt(document.getElementById("columnaAgregar").value);
     if(!valor){ alert("HWID/UUID vacío"); return; }
-    // Insertar en la columna correspondiente
     let insertIndex=codigos.length;
-    // Ajustar para que quede en la columna correcta
     while(insertIndex%nombresColumnas.length!==colIndex){ insertIndex++; }
     codigos.splice(insertIndex,0,valor);
     localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
     input.value=""; cerrarAgregar(); actualizarLista();
+}
+
+// Agregar HWID directamente desde la casilla
+function agregarDirecto(){
+    const valor=document.getElementById("inputAgregarDirecto").value.trim();
+    const colIndex=parseInt(document.getElementById("columnaAgregarDirecto").value);
+    if(!valor){ alert("HWID/UUID vacío"); return; }
+    let insertIndex=codigos.length;
+    while(insertIndex%nombresColumnas.length!==colIndex){ insertIndex++; }
+    codigos.splice(insertIndex,0,valor);
+    localStorage.setItem("codigosGuardados",JSON.stringify(codigos));
+    document.getElementById("inputAgregarDirecto").value="";
+    actualizarLista();
 }
 
 // Eliminar con contraseña
