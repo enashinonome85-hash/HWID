@@ -193,11 +193,7 @@ body.dark #switchTema .toggle {
 
 /* Móvil: abajo derecha */
 @media (max-width: 600px) {
-    #switchContainer {
-        top: auto;
-        bottom: 20px;
-        right: 20px;
-    }
+    #switchContainer { top: auto; bottom: 20px; right: 20px; }
     #switchTema { width: 50px; height: 26px; padding: 2px; }
     #switchTema .toggle { width: 20px; height: 20px; }
     body.dark #switchTema .toggle { transform: translateX(24px); }
@@ -205,10 +201,9 @@ body.dark #switchTema .toggle {
 }
 </style>
 </head>
-
 <body>
 
-<!-- Interruptor tipo iOS -->
+<!-- Interruptor -->
 <div id="switchContainer">
     <div id="switchText">Modo Claro</div>
     <div id="switchTema" onclick="toggleTema()">
@@ -216,7 +211,7 @@ body.dark #switchTema .toggle {
     </div>
 </div>
 
-<!-- Mensaje de bienvenida -->
+<!-- Bienvenida -->
 <div id="bienvenida" class="bienvenida">
     <h2>¡Bienvenido!</h2>
     <p>Gracias por usar el verificador de HWID / UUID.</p>
@@ -225,12 +220,20 @@ body.dark #switchTema .toggle {
 
 <h1>Verificación de HWID y UUID</h1>
 
-<h2>Guardar HWID / UUID</h2>
-<input id="nuevoCodigo" placeholder="Ingresa HWID o UUID para guardar">
-<button onclick="guardarCodigo()">Guardar</button>
-
+<h2>🔎 Verificar HWID / UUID</h2>
+<input id="codigoVerificar" placeholder="Ingresa HWID o UUID">
 <br><br>
+<label for="columnaSeleccion">Selecciona columna para verificar:</label>
+<select id="columnaSeleccion"></select>
+<button onclick="verificar()">Verificar</button>
+<div id="resultado"></div>
 
+<hr>
+
+<h2>📌 Agregar HWID / UUID por columna</h2>
+<div id="agregarPorColumna"></div>
+
+<br>
 <button id="toggleBtn" onclick="toggleLista()">Mostrar lista</button>
 
 <div id="listaFlotante" class="caja-flotante">
@@ -243,13 +246,6 @@ body.dark #switchTema .toggle {
     </div>
 </div>
 
-<hr>
-
-<h2>Verificar HWID / UUID</h2>
-<input id="codigoVerificar" placeholder="Ingresa HWID o UUID a verificar">
-<button onclick="verificar()">Verificar</button>
-<div id="resultado"></div>
-
 <script>
 const CONTRASENA = "torneo2025";
 
@@ -260,41 +256,63 @@ const nombresColumnas = [
   "Super Stars","The show girls","D' la rose","Las Quecas","HOA","Los Trabas","Infinity Girls"
 ];
 
-let columnaSeleccionada = 0;
-
 function escapeHtml(text){ return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
+// Selector para verificar
+const selector = document.getElementById("columnaSeleccion");
+nombresColumnas.forEach((nombre,index)=>{
+    const opt=document.createElement("option");
+    opt.value=index;
+    opt.textContent=nombre;
+    selector.appendChild(opt);
+});
+
+// Inputs de agregar por columna
+const contAgregar=document.getElementById("agregarPorColumna");
+nombresColumnas.forEach((nombre,index)=>{
+    const div=document.createElement("div");
+    div.style.marginBottom="8px";
+    div.innerHTML=`
+        <strong>${escapeHtml(nombre)}</strong><br>
+        <input id="inputColumna${index}" placeholder="HWID/UUID">
+        <button onclick="agregarColumna(${index})">Agregar</button>
+    `;
+    contAgregar.appendChild(div);
+});
+
+// Crear encabezado tabla
 function crearEncabezado() {
-    const encabezadoDiv = document.getElementById("encabezadoColumnas");
-    encabezadoDiv.innerHTML = "";
-    nombresColumnas.forEach((nombre, index) => {
-        const col = document.createElement("div");
-        col.className = "columna";
-        col.innerHTML = `${escapeHtml(nombre)}<br><button onclick="seleccionarColumna(${index})">Comparar</button>`;
+    const encabezadoDiv=document.getElementById("encabezadoColumnas");
+    encabezadoDiv.innerHTML="";
+    nombresColumnas.forEach((nombre,index)=>{
+        const col=document.createElement("div");
+        col.className="columna";
+        col.innerHTML=escapeHtml(nombre);
         encabezadoDiv.appendChild(col);
     });
 }
 crearEncabezado();
 
-function actualizarLista() {
-    const filasDiv = document.getElementById("filasHWID");
-    filasDiv.innerHTML = "";
-    if(codigos.length === 0){
-        filasDiv.innerHTML = `<div class="fila"><div class="columna" colspan="${nombresColumnas.length}">No hay HWID/UUID guardados.</div></div>`;
+// Actualizar lista
+function actualizarLista(){
+    const filasDiv=document.getElementById("filasHWID");
+    filasDiv.innerHTML="";
+    if(codigos.length===0){
+        filasDiv.innerHTML=`<div class="fila"><div class="columna" colspan="${nombresColumnas.length}">No hay HWID/UUID guardados.</div></div>`;
         return;
     }
-    const totalCols = nombresColumnas.length;
-    const totalFilas = Math.ceil(codigos.length / totalCols);
-    for(let i=0; i<totalFilas; i++){
-        const fila = document.createElement("div");
-        fila.className = "fila";
-        for(let j=0; j<totalCols; j++){
-            const index = i*totalCols+j;
-            const codigo = codigos[index] || "";
-            const boton = codigo ? `<button class="delBtn" onclick="eliminarCodigo(${index})">Eliminar</button>` : "";
-            const col = document.createElement("div");
-            col.className = "columna";
-            col.innerHTML = escapeHtml(codigo) + boton;
+    const totalCols=nombresColumnas.length;
+    const totalFilas=Math.ceil(codigos.length/totalCols);
+    for(let i=0;i<totalFilas;i++){
+        const fila=document.createElement("div");
+        fila.className="fila";
+        for(let j=0;j<totalCols;j++){
+            const index=i*totalCols+j;
+            const codigo=codigos[index]||"";
+            const boton=codigo?`<button class="delBtn" onclick="eliminarCodigo(${index})">Eliminar</button>`:"";
+            const col=document.createElement("div");
+            col.className="columna";
+            col.innerHTML=escapeHtml(codigo)+boton;
             fila.appendChild(col);
         }
         filasDiv.appendChild(fila);
@@ -302,58 +320,58 @@ function actualizarLista() {
 }
 actualizarLista();
 
-function guardarCodigo() {
-    const c = document.getElementById("nuevoCodigo").value.trim();
-    if(!c) return alert("El HWID/UUID no puede estar vacío");
-    if(codigos.includes(c)) return alert("Este HWID/UUID ya está guardado");
-    codigos.push(c);
+// Agregar por columna
+function agregarColumna(index){
+    const input=document.getElementById(`inputColumna${index}`);
+    const valor=input.value.trim();
+    if(!valor){ alert("El HWID/UUID no puede estar vacío"); return; }
+    codigos.push(valor);
     localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
-    document.getElementById("nuevoCodigo").value="";
+    input.value="";
     actualizarLista();
 }
 
-function eliminarCodigo(i) {
+// Eliminar con contraseña
+function eliminarCodigo(i){
     const input = prompt("Ingrese la contraseña para eliminar este HWID/UUID:");
-    if (input === null) return;
-    if(input!==CONTRASENA){ alert("Contraseña incorrecta. No se eliminó el HWID/UUID."); return; }
+    if(input===null) return;
+    if(input!==CONTRASENA){ alert("Contraseña incorrecta"); return; }
     codigos.splice(i,1);
     localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
     actualizarLista();
 }
 
+// Toggle lista flotante
 let listaVisible=false;
-function toggleLista() {
+function toggleLista(){
     listaVisible=!listaVisible;
-    document.getElementById("listaFlotante").classList.toggle("visible", listaVisible);
-    document.getElementById("toggleBtn").textContent = listaVisible ? "Lista abierta" : "Mostrar lista";
+    document.getElementById("listaFlotante").classList.toggle("visible",listaVisible);
+    document.getElementById("toggleBtn").textContent = listaVisible?"Lista abierta":"Mostrar lista";
 }
 
-function seleccionarColumna(col){
-    columnaSeleccionada = col;
-    alert("Columna seleccionada para verificación: " + nombresColumnas[col]);
-}
-
+// Verificar HWID/UUID
 function verificar(){
-    const c = document.getElementById("codigoVerificar").value.trim();
-    const r = document.getElementById("resultado");
-    const colHWIDs = codigos.filter((_,i)=> i%nombresColumnas.length === columnaSeleccionada);
+    const c=document.getElementById("codigoVerificar").value.trim();
+    const r=document.getElementById("resultado");
+    const colIndex=parseInt(document.getElementById("columnaSeleccion").value);
+    const colHWIDs=codigos.filter((_,i)=>i%nombresColumnas.length===colIndex);
     if(colHWIDs.includes(c)){
-        r.textContent = "✔ Correcto: HWID/UUID verificado en la columna " + nombresColumnas[columnaSeleccionada];
-        r.style.color = "lime";
+        r.textContent="✔ Correcto: HWID/UUID verificado en "+nombresColumnas[colIndex];
+        r.style.color="lime";
     }else{
-        r.textContent = "✘ Incorrecto: no se encontró en la columna " + nombresColumnas[columnaSeleccionada];
-        r.style.color = "red";
+        r.textContent="✘ Incorrecto: no se encontró en "+nombresColumnas[colIndex];
+        r.style.color="red";
     }
 }
 
 // Modo oscuro/claro
 function toggleTema(){
     document.body.classList.toggle("dark");
-    document.getElementById("switchText").textContent = document.body.classList.contains("dark") ? "Modo Oscuro" : "Modo Claro";
+    document.getElementById("switchText").textContent=document.body.classList.contains("dark")?"Modo Oscuro":"Modo Claro";
 }
 
 // Mensaje bienvenida
-window.onload = function(){
+window.onload=function(){
     const bienvenida=document.getElementById("bienvenida");
     bienvenida.classList.add("visible");
     setTimeout(()=>cerrarBienvenida(),5000);
