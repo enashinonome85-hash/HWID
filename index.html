@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Verificación de HWID y UUID</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            margin: 40px;
+            color: white;
+            text-align: center;
+
+            /* Fondo estático */
+            background-image: url('20240731_073957.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        input {
+            padding: 8px;
+            width: 260px;
+            font-size: 16px;
+        }
+        button {
+            padding: 8px 16px;
+            font-size: 16px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        #resultado {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .item { margin: 5px 0; }
+        .delBtn {
+            background-color: red;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        /* Caja flotante fija centrada */
+        .caja-flotante {
+            width: 350px;
+            max-height: 300px;
+            background: rgba(0, 0, 0, 0.80);
+            padding: 15px;
+            border-radius: 12px;
+            position: fixed;
+            top: 120px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            color: white;
+            backdrop-filter: blur(6px);
+            box-shadow: 0px 0px 20px #000;
+        }
+
+        /* Botón cerrar dentro de la caja */
+        .closeBtn {
+            background: #c0392b;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute;
+            top: 10px;
+            right: 10px;
+        }
+        .closeBtn:hover {
+            background: #e74c3c;
+        }
+
+        .lista-scroll {
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 10px;
+            margin-top: 30px;
+        }
+
+        /* Scroll estético */
+        .lista-scroll::-webkit-scrollbar {
+            width: 8px;
+        }
+        .lista-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 3px;
+        }
+        .lista-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.7);
+        }
+    </style>
+</head>
+
+<body>
+
+    <h1>🔐 Verificación de HWID y UUID</h1>
+
+    <h2>📌 Guardar HWID / UUID</h2>
+    <input id="nuevoCodigo" placeholder="Ingresa HWID o UUID para guardar">
+    <button onclick="guardarCodigo()">Guardar</button>
+
+    <br><br>
+
+    <!-- Botón para abrir la lista -->
+    <button id="toggleBtn" onclick="toggleLista()">👁️ Mostrar lista</button>
+
+    <!-- Caja flotante con scroll -->
+    <div id="listaFlotante" class="caja-flotante">
+        <button class="closeBtn" onclick="toggleLista()">X</button>
+        <h3>HWID / UUID guardados</h3>
+
+        <div id="lista" class="lista-scroll"></div>
+    </div>
+
+    <hr>
+
+    <h2>🔎 Verificar HWID / UUID</h2>
+    <input id="codigoVerificar" placeholder="Ingresa HWID o UUID a verificar">
+    <button onclick="verificar()">Verificar</button>
+
+    <div id="resultado"></div>
+
+    <script>
+        let codigos = JSON.parse(localStorage.getItem("codigosGuardados")) || [];
+
+        function actualizarLista() {
+            let html = "";
+            if (codigos.length === 0) {
+                html = "No hay HWID/UUID guardados.";
+            } else {
+                codigos.forEach((codigo, index) => {
+                    html += `
+                        <div class="item">
+                            ${codigo}
+                            <button class="delBtn" onclick="eliminarCodigo(${index})">Eliminar</button>
+                        </div>
+                    `;
+                });
+            }
+            document.getElementById("lista").innerHTML = html;
+        }
+        actualizarLista();
+
+        function guardarCodigo() {
+            let codigo = document.getElementById("nuevoCodigo").value.trim();
+
+            if (codigo === "") {
+                alert("El HWID/UUID no puede estar vacío");
+                return;
+            }
+            if (codigos.includes(codigo)) {
+                alert("Este HWID/UUID ya está guardado");
+                return;
+            }
+            codigos.push(codigo);
+            localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
+            document.getElementById("nuevoCodigo").value = "";
+            actualizarLista();
+        }
+
+        function verificar() {
+            let codigo = document.getElementById("codigoVerificar").value.trim();
+
+            if (codigos.includes(codigo)) {
+                document.getElementById("resultado").innerHTML =
+                    "✔ Correcto: HWID/UUID verificado";
+                document.getElementById("resultado").style.color = "lime";
+            } else {
+                document.getElementById("resultado").innerHTML =
+                    "✘ Incorrecto: este HWID/UUID no está registrado";
+                document.getElementById("resultado").style.color = "red";
+            }
+        }
+
+        function eliminarCodigo(index) {
+            if (confirm("¿Seguro que deseas eliminar este HWID/UUID?")) {
+                codigos.splice(index, 1);
+                localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
+                actualizarLista();
+            }
+        }
+
+        let listaVisible = false;
+
+        function toggleLista() {
+            const caja = document.getElementById("listaFlotante");
+            const btn = document.getElementById("toggleBtn");
+
+            if (listaVisible) {
+                caja.style.display = "none";
+                btn.textContent = "👁️ Mostrar lista";
+            } else {
+                caja.style.display = "block";
+                btn.textContent = "🔒 Lista abierta";
+            }
+            listaVisible = !listaVisible;
+        }
+    </script>
