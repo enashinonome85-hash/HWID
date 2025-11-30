@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Verificación HWID / UUID con Fondo YouTube</title>
+<title>Verificación de HWID y UUID</title>
+
 <style>
 :root {
     --bg-overlay: rgba(255,255,255,0.15);
@@ -17,89 +18,80 @@ body.dark {
 }
 body {
     font-family: Arial, sans-serif;
-    margin: 40px;
+    margin:0;
     color: var(--text-color);
-    text-align: center;
-    background-image: url('20240731_073957.jpg');
-    background-size: cover;
-    background-position: center;
-    background-attachment: fixed;
+    text-align:center;
+    background:#000;
 }
-h1, h2 { text-shadow: 2px 2px 6px rgba(0,0,0,.4); }
-input, select {
-    padding: 10px;
-    width: 280px;
-    font-size: 16px;
-    border-radius: 8px;
-    border: none;
-    outline: none;
-    background: var(--panel-bg);
-    color: var(--text-color);
-}
-button {
-    padding: 10px 18px;
-    font-size: 16px;
-    margin-top: 10px;
-    cursor: pointer;
-    border-radius: 8px;
-    border: none;
-    background: #2980b9;
-    color: white;
-    font-weight: bold;
-    transition: .2s;
-}
-button:hover { background: #3498db; }
-#resultado, #resultadoAgregar { margin-top: 20px; font-weight: bold; min-height: 24px; }
+h1,h2 { text-shadow:2px 2px 6px rgba(0,0,0,.5); }
+input, select, button { font-size:16px; padding:10px; border-radius:8px; border:none; outline:none; }
+button { cursor:pointer; font-weight:bold; transition:.2s; }
+button:hover { opacity:.8; }
 .caja-flotante {
-    width: 90%;
-    max-width: 450px;
+    width:90%; max-width:450px;
     background: var(--panel-bg);
-    padding: 20px;
-    border-radius: 15px;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) scale(0.7);
-    display: none;
+    padding:20px; border-radius:15px;
+    position: fixed; top:50%; left:50%;
+    transform: translate(-50%,-50%) scale(0.7);
+    display:none;
     color: var(--text-color);
     backdrop-filter: blur(6px);
-    box-shadow: 0px 0px 20px #000;
-    opacity: 0;
-    transition: opacity .3s ease, transform .3s ease;
-    z-index: 9999;
+    box-shadow:0 0 20px #000;
+    opacity:0; transition:opacity .3s, transform .3s;
+    z-index:9999;
 }
-.caja-flotante.visible { display: block; opacity: 1; transform: translate(-50%, -50%) scale(1); }
-.closeBtn { background: #c0392b; border: none; padding: 6px 14px; border-radius: 6px; color: white; font-weight: bold; cursor: pointer; position: absolute; top: 12px; right: 12px; }
-.lista-scroll { overflow-y: auto; max-height: 300px; margin-top: 10px; }
-.tabla { display: flex; flex-direction: column; width: 100%; }
-.fila { display: flex; }
-.columna { flex: 1; min-width: 150px; padding: 6px; border-bottom: 1px solid rgba(0,0,0,0.2); word-break: break-word; text-align: center; }
-.encabezado .columna { font-weight: bold; background: var(--bg-overlay); }
-.delBtn { background-color: red; color: white; border: none; padding: 4px 8px; font-size: 12px; cursor: pointer; border-radius: 4px; display: block; margin: 5px auto 0; }
-.bienvenida { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.6); background: var(--panel-bg); color: var(--text-color); padding: 30px 35px; border-radius: 16px; backdrop-filter: blur(12px); box-shadow: 0px 0px 30px rgba(0,0,0,0.5); text-align: center; width: 350px; max-width: 90%; opacity: 0; pointer-events: none; transition: opacity .45s ease, transform .45s ease; z-index: 9999; }
-.bienvenida.visible { opacity: 1; transform: translate(-50%, -50%) scale(1); pointer-events: auto; }
-.bienvenida button { margin-top: 20px; padding: 10px 18px; background: #27ae60; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold; transition: .3s; }
-.bienvenida button:hover { background: #2ecc71; }
-#fondoBienvenida { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); z-index: 9998; opacity: 0; pointer-events: none; transition: opacity .4s ease; }
-#fondoBienvenida.visible { opacity: 1; pointer-events: auto; }
-#switchContainer { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; align-items: center; z-index: 9999; }
-#switchText { margin-bottom: 6px; font-weight: bold; color: var(--text-color); }
-#switchTema { width: 60px; height: 30px; background: var(--panel-bg); border-radius: 50px; cursor: pointer; box-shadow: 0 3px 10px rgba(0,0,0,0.4); display: flex; align-items: center; padding: 3px; transition: background .3s ease, transform .3s ease; }
-#switchTema .toggle { width: 24px; height: 24px; background: var(--text-color); border-radius: 50%; transition: transform .3s ease, background .3s ease; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-body.dark #switchTema .toggle { transform: translateX(30px); }
-#switchTema:hover { transform: scale(1.1); }
-#footerText { position: fixed; bottom: 20px; left: 20px; background: var(--bg-overlay); padding: 8px 12px; border-radius: 8px; color: var(--text-color); font-weight: bold; font-size: 14px; z-index: 999; }
-#importExportContainer { display: flex; justify-content: center; gap: 15px; margin-top: 10px; }
-#youtubeContainer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+.caja-flotante.visible { display:block; opacity:1; transform: translate(-50%,-50%) scale(1); }
+.closeBtn { background:#c0392b; color:#fff; border:none; padding:6px 14px; border-radius:6px; position:absolute; top:12px; right:12px; cursor:pointer; }
+.lista-scroll { overflow-y:auto; max-height:300px; margin-top:10px; }
+.tabla { display:flex; flex-direction:column; width:100%; }
+.fila { display:flex; }
+.columna { flex:1; min-width:150px; padding:6px; border-bottom:1px solid rgba(0,0,0,0.2); word-break:break-word; text-align:center; }
+.encabezado .columna { font-weight:bold; background:var(--bg-overlay); }
+.delBtn { background:red; color:white; border:none; padding:4px 8px; font-size:12px; cursor:pointer; border-radius:4px; display:block; margin:5px auto 0; }
+
+.bienvenida {
+    position: fixed; top:50%; left:50%;
+    transform: translate(-50%,-50%) scale(0.6);
+    background: var(--panel-bg); color: var(--text-color);
+    padding:30px 35px; border-radius:16px; backdrop-filter: blur(12px);
+    box-shadow:0 0 30px rgba(0,0,0,0.5); text-align:center; width:350px; max-width:90%;
+    opacity:0; pointer-events:none; transition: opacity .45s, transform .45s;
+    z-index:9999;
+}
+.bienvenida.visible { opacity:1; transform: translate(-50%,-50%) scale(1); pointer-events:auto; }
+.bienvenida button { margin-top:20px; padding:10px 18px; background:#27ae60; border:none; border-radius:8px; color:white; cursor:pointer; font-weight:bold; }
+.bienvenida button:hover { background:#2ecc71; }
+#fondoBienvenida { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.55); backdrop-filter: blur(4px); z-index:9998; opacity:0; pointer-events:none; transition: opacity .4s; }
+#fondoBienvenida.visible { opacity:1; pointer-events:auto; }
+
+#switchContainer { position: fixed; top:20px; right:20px; display:flex; flex-direction:column; align-items:center; z-index:9999; }
+#switchText { margin-bottom:6px; font-weight:bold; color: var(--text-color); }
+#switchTema { width:60px; height:30px; background: var(--panel-bg); border-radius:50px; cursor:pointer; box-shadow:0 3px 10px rgba(0,0,0,0.4); display:flex; align-items:center; padding:3px; transition: background .3s, transform .3s; }
+#switchTema .toggle { width:24px; height:24px; background: var(--text-color); border-radius:50%; transition: transform .3s, background .3s; box-shadow:0 2px 5px rgba(0,0,0,0.3);}
+body.dark #switchTema .toggle { transform:translateX(30px); }
+#switchTema:hover { transform:scale(1.1); }
+
+#footerText { position: fixed; bottom:20px; left:20px; background: var(--bg-overlay); padding:8px 12px; border-radius:8px; color: var(--text-color); font-weight:bold; font-size:14px; z-index:999; }
+
+#importExportContainer { display:flex; justify-content:center; gap:15px; margin-top:10px; }
+
+/* Contenedor de video de fondo */
+#youtubeContainer { position:fixed; top:0; left:0; width:100vw; height:100vh; z-index:-1; overflow:hidden; pointer-events:none; }
+#youtubeContainer iframe { width:100%; height:100%; pointer-events:none; }
 </style>
 </head>
 <body>
 
+<!-- Video de fondo -->
+<div id="youtubeContainer"></div>
+
+<!-- Interruptor -->
 <div id="switchContainer">
     <div id="switchText">Modo Claro</div>
     <div id="switchTema" onclick="toggleTema()"><div class="toggle"></div></div>
 </div>
 
+<!-- Bienvenida -->
 <div id="fondoBienvenida"></div>
 <div id="bienvenida" class="bienvenida">
     <h2>¡Bienvenido!</h2>
@@ -107,14 +99,12 @@ body.dark #switchTema .toggle { transform: translateX(30px); }
     <button onclick="cerrarBienvenida()">Comenzar</button>
 </div>
 
-<div id="youtubeContainer"></div>
-
 <h1>Verificación de HWID y UUID</h1>
 
 <h2>🔎 Verificar HWID / UUID</h2>
 <input id="codigoVerificar" placeholder="Ingresa HWID o UUID" />
 <br><br>
-<label for="columnaSeleccion">Selecciona columna para verificar:</label>
+<label for="columnaSeleccion">Selecciona columna:</label>
 <select id="columnaSeleccion"></select>
 <button onclick="verificar()">Verificar</button>
 <div id="resultado"></div>
@@ -124,7 +114,7 @@ body.dark #switchTema .toggle { transform: translateX(30px); }
 <h2>📌 Agregar HWID / UUID</h2>
 <input id="inputAgregarDirecto" placeholder="Ingresa HWID/UUID" />
 <br><br>
-<label for="columnaAgregarDirecto">Selecciona columna para agregar:</label>
+<label for="columnaAgregarDirecto">Selecciona columna:</label>
 <select id="columnaAgregarDirecto"></select>
 <br><br>
 <button onclick="agregarDirecto()">Agregar</button>
@@ -132,6 +122,7 @@ body.dark #switchTema .toggle { transform: translateX(30px); }
 
 <br>
 <button onclick="abrirAgregar()">Agregar con caja flotante</button>
+
 <div id="cajaAgregar" class="caja-flotante">
     <button class="closeBtn" onclick="cerrarAgregar()">X</button>
     <h3>Agregar HWID / UUID</h3>
@@ -145,6 +136,7 @@ body.dark #switchTema .toggle { transform: translateX(30px); }
 
 <br>
 <button id="toggleBtn" onclick="toggleLista()">Mostrar lista</button>
+
 <div id="listaFlotante" class="caja-flotante">
     <button class="closeBtn" onclick="toggleLista()">X</button>
     <div id="lista" class="lista-scroll">
@@ -163,21 +155,20 @@ body.dark #switchTema .toggle { transform: translateX(30px); }
 
 <script src="https://www.youtube.com/iframe_api"></script>
 <script>
-const CONTRASENA = "torneo2025";
+const CONTRASENA="torneo2025";
 let codigos = JSON.parse(localStorage.getItem("codigosGuardados")) || [];
 const nombresColumnas = ["STELLARA","DINGOS GHOST",":STEAMDANCE:","4LOV","LAS MALCRIADAS","ANGELS APOCALYPTIC","Las Ohño","Woosh Girls","Blackyard Queens","BELLATRIX","PANDORA'S HORDE","Super Stars","The show girls","D' la rose","Las Quecas","HOA","Los Trabas","Infinity Girls"];
 
-const selector = document.getElementById("columnaSeleccion");
-const selectorAgregar = document.getElementById("columnaAgregar");
-const selectorAgregarDirecto = document.getElementById("columnaAgregarDirecto");
+function escapeHtml(text){return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
+const selector=document.getElementById("columnaSeleccion");
+const selectorAgregar=document.getElementById("columnaAgregar");
+const selectorAgregarDirecto=document.getElementById("columnaAgregarDirecto");
 nombresColumnas.forEach((nombre,index)=>{
     [selector,selectorAgregar,selectorAgregarDirecto].forEach(sel=>{
-        const opt=document.createElement("option");
-        opt.value=index; opt.textContent=nombre; sel.appendChild(opt);
+        const opt=document.createElement("option"); opt.value=index; opt.textContent=nombre; sel.appendChild(opt);
     });
 });
-
-function escapeHtml(text) { return text.replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
 function crearEncabezado(){
     const encabezadoDiv=document.getElementById("encabezadoColumnas");
@@ -215,11 +206,10 @@ actualizarLista();
 
 function abrirAgregar(){ document.getElementById("cajaAgregar").classList.add("visible"); }
 function cerrarAgregar(){ document.getElementById("cajaAgregar").classList.remove("visible"); }
-function existeHWID(valor){ return codigos.includes(valor); }
 
+function existeHWID(valor){ return codigos.includes(valor); }
 function agregarEnColumna(valor,colIndex){
-    const resultadoAgregarDiv=document.getElementById("resultadoAgregar");
-    resultadoAgregarDiv.textContent=""; resultadoAgregarDiv.style.color="";
+    const resultadoAgregarDiv=document.getElementById("resultadoAgregar"); resultadoAgregarDiv.textContent=""; resultadoAgregarDiv.style.color="";
     if(existeHWID(valor)){ resultadoAgregarDiv.textContent="✘ Este HWID/UUID ya está registrado."; resultadoAgregarDiv.style.color="red"; return false; }
     const numColumnas=nombresColumnas.length;
     const totalFilas=Math.ceil(codigos.length/numColumnas);
@@ -239,20 +229,8 @@ function agregarEnColumna(valor,colIndex){
     return true;
 }
 
-function agregarAHWID(){
-    const input=document.getElementById("inputAgregar");
-    const valor=input.value.trim();
-    const colIndex=parseInt(document.getElementById("columnaAgregar").value);
-    if(!valor){ alert("HWID/UUID vacío"); return; }
-    if(agregarEnColumna(valor,colIndex)){ input.value=""; cerrarAgregar(); }
-}
-
-function agregarDirecto(){
-    const valor=document.getElementById("inputAgregarDirecto").value.trim();
-    const colIndex=parseInt(document.getElementById("columnaAgregarDirecto").value);
-    if(!valor){ alert("HWID/UUID vacío"); return; }
-    if(agregarEnColumna(valor,colIndex)) document.getElementById("inputAgregarDirecto").value="";
-}
+function agregarAHWID(){ const valor=document.getElementById("inputAgregar").value.trim(); const colIndex=parseInt(document.getElementById("columnaAgregar").value); if(!valor){ alert("HWID/UUID vacío"); return; } if(agregarEnColumna(valor,colIndex)){ document.getElementById("inputAgregar").value=""; cerrarAgregar(); } }
+function agregarDirecto(){ const valor=document.getElementById("inputAgregarDirecto").value.trim(); const colIndex=parseInt(document.getElementById("columnaAgregarDirecto").value); if(!valor){ alert("HWID/UUID vacío"); return; } if(agregarEnColumna(valor,colIndex)) document.getElementById("inputAgregarDirecto").value=""; }
 
 function eliminarCodigo(i){
     const input=prompt("Ingrese la contraseña para eliminar este HWID/UUID:");
@@ -279,47 +257,35 @@ function verificar(){
     else{ r.textContent="✘ Incorrecto: no se encontró en "+nombresColumnas[colIndex]; r.style.color="red"; }
 }
 
-function toggleTema(){
-    document.body.classList.toggle("dark");
-    document.getElementById("switchText").textContent=document.body.classList.contains("dark")?"Modo Oscuro":"Modo Claro";
-}
+function toggleTema(){ document.body.classList.toggle("dark"); document.getElementById("switchText").textContent=document.body.classList.contains("dark")?"Modo Oscuro":"Modo Claro"; }
 
 function mostrarBienvenida(){
     if(localStorage.getItem("bienvenidaVISTA")==="1") return;
     const b=document.getElementById("bienvenida");
     const f=document.getElementById("fondoBienvenida");
-    b.style.display="block"; f.style.display="block";
-    setTimeout(()=>{ b.classList.add("visible"); f.classList.add("visible"); },50);
+    b.classList.add("visible"); f.classList.add("visible");
 }
-function cerrarBienvenida(){
-    const b=document.getElementById("bienvenida");
-    const f=document.getElementById("fondoBienvenida");
-    b.classList.remove("visible"); f.classList.remove("visible");
-    localStorage.setItem("bienvenidaVISTA","1");
-    setTimeout(()=>{ b.style.display="none"; f.style.display="none"; },450);
-}
-document.getElementById("fondoBienvenida").onclick=cerrarBienvenida;
-window.onload=mostrarBienvenida;
 
-// YouTube API
+function cerrarBienvenida(){ document.getElementById("bienvenida").classList.remove("visible"); document.getElementById("fondoBienvenida").classList.remove("visible"); localStorage.setItem("bienvenidaVISTA","1"); }
+
+function exportarLista(){ const data=JSON.stringify(codigos); const blob=new Blob([data],{type:"application/json"}); const url=URL.createObjectURL(blob); const a=document.createElement("a"); a.href=url; a.download="hwid_lista.json"; a.click(); URL.revokeObjectURL(url); }
+
+function importarLista(){ const input=document.createElement("input"); input.type="file"; input.accept="application/json"; input.onchange=e=>{ const file=e.target.files[0]; const reader=new FileReader(); reader.onload=ev=>{ try{ const data=JSON.parse(ev.target.result); if(Array.isArray(data)){ codigos=data; localStorage.setItem("codigosGuardados",JSON.stringify(codigos)); actualizarLista(); alert("Importación exitosa"); }else{ alert("Archivo inválido"); } }catch(err){ alert("Error al importar") } }; reader.readAsText(file); }; input.click(); }
+
+// YouTube Video de fondo
 let player;
 function onYouTubeIframeAPIReady(){
-    player = new YT.Player('youtubeContainer',{
-        height:'100%', width:'100%',
-        videoId:'dQw4w9WgXcQ', // Cambia por tu video
-        playerVars:{ autoplay:0, controls:0, loop:0, modestbranding:1 },
-        events:{ 'onReady': onPlayerReady, 'onStateChange': onPlayerStateChange }
-    });
+    player=new YTIframe('youtubeContainer','dQw4w9WgXcQ'); // reemplaza con tu ID
 }
-function onPlayerReady(event){ /* Puedes iniciar reproducción aquí si quieres */ }
-function onPlayerStateChange(event){
-    if(event.data==YT.PlayerState.ENDED){
-        document.body.style.backgroundImage="url('20240731_073957.jpg')";
+class YTIframe{
+    constructor(containerId,videoId){
+        this.player=new YT.Player(containerId,{videoId:videoId,playerVars:{autoplay:1,controls:0,showinfo:0,modestbranding:1,loop:1,playlist:videoId,mute:1},events:{onReady:(e)=>{e.target.playVideo();}}});
     }
 }
-function reproducirFondoVideo(){
-    if(player) { player.playVideo(); document.body.style.backgroundImage="none"; }
-}
+
+// Mostrar bienvenida al cargar
+window.onload=mostrarBienvenida;
 </script>
+
 </body>
 </html>
