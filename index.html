@@ -57,7 +57,7 @@ button {
 
 button:hover { background: #3498db; }
 
-#resultado { margin-top: 20px; font-size: 20px; font-weight: bold; }
+#resultado { margin-top: 20px; font-size: 20px; font-weight: bold; min-height: 24px; }
 
 /* Caja flotante */
 .caja-flotante {
@@ -375,8 +375,13 @@ function existeHWID(valor) {
 
 // Nueva función para agregar respetando columnas y filas
 function agregarEnColumna(valor, colIndex) {
+    const resultadoDiv = document.getElementById("resultado");
+    resultadoDiv.textContent = "";
+    resultadoDiv.style.color = "";
+
     if (existeHWID(valor)) {
-        alert("Este HWID/UUID ya está registrado.");
+        resultadoDiv.textContent = "✘ Este HWID/UUID ya está registrado.";
+        resultadoDiv.style.color = "red";
         return false;
     }
 
@@ -411,6 +416,10 @@ function agregarEnColumna(valor, colIndex) {
     codigos = nuevaLista;
     localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
     actualizarLista();
+
+    resultadoDiv.textContent = "✔ HWID/UUID agregado correctamente.";
+    resultadoDiv.style.color = "lime";
+
     return true;
 }
 
