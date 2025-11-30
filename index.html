@@ -190,6 +190,20 @@ body.dark #switchTema .toggle { transform: translateX(30px); }
     body.dark #switchTema .toggle { transform: translateX(24px); }
     #switchText { font-size: 14px; }
 }
+
+/* Footer fijo */
+#footerText {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: var(--bg-overlay);
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--text-color);
+    font-weight: bold;
+    font-size: 14px;
+    z-index: 999;
+}
 </style>
 </head>
 <body>
@@ -257,6 +271,9 @@ body.dark #switchTema .toggle { transform: translateX(30px); }
     </div>
 </div>
 
+<!-- Footer fijo -->
+<div id="footerText">Verificación de HWID/UUID torneo de mujeres</div>
+
 <script>
 const CONTRASENA="torneo2025";
 let codigos=JSON.parse(localStorage.getItem("codigosGuardados"))||[];
@@ -268,7 +285,6 @@ const nombresColumnas=[
 
 function escapeHtml(text){ return text.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 
-// Selector columna verificar y agregar
 const selector=document.getElementById("columnaSeleccion");
 const selectorAgregar=document.getElementById("columnaAgregar");
 const selectorAgregarDirecto=document.getElementById("columnaAgregarDirecto");
@@ -282,7 +298,6 @@ nombresColumnas.forEach((nombre,index)=>{
     opt3.value=index; opt3.textContent=nombre; selectorAgregarDirecto.appendChild(opt3);
 });
 
-// Crear encabezado tabla
 function crearEncabezado() {
     const encabezadoDiv=document.getElementById("encabezadoColumnas");
     encabezadoDiv.innerHTML="";
@@ -294,7 +309,6 @@ function crearEncabezado() {
 }
 crearEncabezado();
 
-// Actualizar lista
 function actualizarLista(){
     const filasDiv=document.getElementById("filasHWID");
     filasDiv.innerHTML="";
@@ -317,7 +331,6 @@ function actualizarLista(){
 }
 actualizarLista();
 
-// Agregar HWID
 function abrirAgregar(){ document.getElementById("cajaAgregar").classList.add("visible"); }
 function cerrarAgregar(){ document.getElementById("cajaAgregar").classList.remove("visible"); }
 function agregarAHWID(){
@@ -331,7 +344,6 @@ function agregarAHWID(){
     input.value=""; cerrarAgregar(); actualizarLista();
 }
 
-// Agregar HWID directamente desde la casilla
 function agregarDirecto(){
     const valor=document.getElementById("inputAgregarDirecto").value.trim();
     const colIndex=parseInt(document.getElementById("columnaAgregarDirecto").value);
@@ -344,7 +356,6 @@ function agregarDirecto(){
     actualizarLista();
 }
 
-// Eliminar con contraseña
 function eliminarCodigo(i){
     const input = prompt("Ingrese la contraseña para eliminar este HWID/UUID:");
     if(input===null) return;
@@ -354,7 +365,6 @@ function eliminarCodigo(i){
     actualizarLista();
 }
 
-// Toggle lista flotante
 let listaVisible=false;
 function toggleLista(){
     listaVisible=!listaVisible;
@@ -362,7 +372,6 @@ function toggleLista(){
     document.getElementById("toggleBtn").textContent = listaVisible?"Lista abierta":"Mostrar lista";
 }
 
-// Verificar HWID/UUID
 function verificar(){
     const c=document.getElementById("codigoVerificar").value.trim();
     const r=document.getElementById("resultado");
@@ -377,13 +386,11 @@ function verificar(){
     }
 }
 
-// Modo oscuro/claro
 function toggleTema(){
     document.body.classList.toggle("dark");
     document.getElementById("switchText").textContent=document.body.classList.contains("dark")?"Modo Oscuro":"Modo Claro";
 }
 
-// Mensaje bienvenida
 window.onload=function(){
     const bienvenida=document.getElementById("bienvenida");
     bienvenida.classList.add("visible");
