@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verificación de HWID y UUID</title>
 
     <style>
@@ -26,17 +25,13 @@
             margin: 40px;
             color: var(--text-color);
             text-align: center;
-
-            /* Fondo fijo */
             background-image: url('20240731_073957.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
         }
 
-        h1, h2 {
-            text-shadow: 2px 2px 6px rgba(0, 0, 0, .4);
-        }
+        h1, h2 { text-shadow: 2px 2px 6px rgba(0,0,0,.4); }
 
         input {
             padding: 10px;
@@ -62,15 +57,9 @@
             transition: .2s;
         }
 
-        button:hover {
-            background: #3498db;
-        }
+        button:hover { background: #3498db; }
 
-        #resultado {
-            margin-top: 20px;
-            font-size: 20px;
-            font-weight: bold;
-        }
+        #resultado { margin-top: 20px; font-size: 20px; font-weight: bold; }
 
         /* Caja flotante */
         .caja-flotante {
@@ -92,10 +81,7 @@
             transition: opacity .3s ease;
         }
 
-        .caja-flotante.visible {
-            display: block;
-            opacity: 1;
-        }
+        .caja-flotante.visible { display: block; opacity: 1; }
 
         .closeBtn {
             background: #c0392b;
@@ -143,9 +129,7 @@
             border-radius: 3px;
         }
 
-        /* =============================
-           📢 Mensaje de bienvenida
-        ==============================*/
+        /* Mensaje de bienvenida */
         .bienvenida {
             position: fixed;
             top: 50%;
@@ -173,7 +157,7 @@
         }
 
         /* =============================
-           🌗 INTERRUPTOR DE TEMA
+           Interruptor tipo iOS
         ============================== */
         #switchTema {
             position: fixed;
@@ -182,14 +166,14 @@
             width: 60px;
             height: 30px;
             background: var(--panel-bg);
-            border-radius: 20px;
+            border-radius: 50px;
             cursor: pointer;
-            box-shadow: 0 0 10px #00000060;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
             display: flex;
             align-items: center;
             padding: 3px;
-            transition: background .3s ease;
-            z-index: 999;
+            transition: background .3s ease, transform .3s ease;
+            z-index: 9999;
         }
 
         #switchTema .toggle {
@@ -198,6 +182,7 @@
             background: var(--text-color);
             border-radius: 50%;
             transition: transform .3s ease, background .3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         }
 
         #switchTema .icono {
@@ -213,68 +198,44 @@
             transform: translateX(30px);
         }
 
-        /* ============================
-           Responsive Móvil
-        ============================= */
+        #switchTema:hover { transform: scale(1.1); }
+
+        /* Responsive Móvil */
         @media (max-width: 600px) {
             body { margin: 20px; }
 
             h1 { font-size: 26px; }
             h2 { font-size: 20px; }
 
-            input {
-                width: 90%;
-                font-size: 18px;
-                padding: 12px;
-            }
+            input { width: 90%; font-size: 18px; padding: 12px; }
 
-            button {
-                width: 92%;
-                padding: 14px;
-                font-size: 18px;
-            }
+            button { width: 92%; padding: 14px; font-size: 18px; }
 
             #switchTema {
-                width: 50px;
-                height: 26px;
-                top: 15px;
-                right: 15px;
+                width: 50px; height: 26px;
+                top: 15px; right: 15px; padding: 2px;
             }
 
-            #switchTema .toggle {
-                width: 20px;
-                height: 20px;
-            }
-
-            body.dark #switchTema .toggle {
-                transform: translateX(24px);
-            }
-
+            #switchTema .toggle { width: 20px; height: 20px; }
+            body.dark #switchTema .toggle { transform: translateX(24px); }
             #switchTema .icono { font-size: 15px; }
 
-            .caja-flotante {
-                top: 80px;
-                max-height: 70vh;
-            }
-
-            .lista-scroll {
-                max-height: 55vh;
-            }
+            .caja-flotante { top: 80px; max-height: 70vh; }
+            .lista-scroll { max-height: 55vh; }
         }
-
     </style>
 </head>
 
-<body class="dark">
+<body>
 
-    <!-- INTERRUPTOR DE TEMA -->
+    <!-- Interruptor tipo iOS -->
     <div id="switchTema" onclick="toggleTema()">
         <span id="sol" class="icono">☀️</span>
         <span id="luna" class="icono">🌙</span>
         <div class="toggle"></div>
     </div>
 
-    <!-- MENSAJE DE BIENVENIDA -->
+    <!-- Mensaje de bienvenida -->
     <div id="bienvenida" class="bienvenida">
         <h2>¡Bienvenido! 👋</h2>
         <p>Gracias por usar el verificador de HWID / UUID.</p>
@@ -302,25 +263,20 @@
     <h2>🔎 Verificar HWID / UUID</h2>
     <input id="codigoVerificar" placeholder="Ingresa HWID o UUID a verificar">
     <button onclick="verificar()">Verificar</button>
-
     <div id="resultado"></div>
 
     <script>
         let codigos = JSON.parse(localStorage.getItem("codigosGuardados")) || [];
-
         const listaDiv = document.getElementById("lista");
         const listaFlotante = document.getElementById("listaFlotante");
         const toggleBtn = document.getElementById("toggleBtn");
 
-        /* =============================
-           Lista HWID/UUID
-        ==============================*/
+        // Actualizar lista
         function actualizarLista() {
             if (codigos.length === 0) {
                 listaDiv.innerHTML = "No hay HWID/UUID guardados.";
                 return;
             }
-
             listaDiv.innerHTML = codigos.map((codigo, i) => `
                 <div class="item">
                     ${escapeHtml(codigo)}
@@ -328,15 +284,12 @@
                 </div>
             `).join("");
         }
-
         actualizarLista();
 
         function guardarCodigo() {
             const codigo = document.getElementById("nuevoCodigo").value.trim();
-
             if (!codigo) return alert("El HWID/UUID no puede estar vacío");
             if (codigos.includes(codigo)) return alert("Este HWID/UUID ya está guardado");
-
             codigos.push(codigo);
             localStorage.setItem("codigosGuardados", JSON.stringify(codigos));
             document.getElementById("nuevoCodigo").value = "";
@@ -346,7 +299,6 @@
         function verificar() {
             const codigo = document.getElementById("codigoVerificar").value.trim();
             const r = document.getElementById("resultado");
-
             if (codigos.includes(codigo)) {
                 r.textContent = "✔ Correcto: HWID/UUID verificado";
                 r.style.color = "lime";
@@ -364,44 +316,30 @@
         }
 
         let listaVisible = false;
-
         function toggleLista() {
             listaVisible = !listaVisible;
             listaFlotante.classList.toggle("visible", listaVisible);
             toggleBtn.textContent = listaVisible ? "🔒 Lista abierta" : "👁️ Mostrar lista";
         }
 
-        /* =============================
-           MODO OSCURO / CLARO
-        ==============================*/
-        function toggleTema() {
-            document.body.classList.toggle("dark");
-        }
+        // Modo claro/oscuro
+        function toggleTema() { document.body.classList.toggle("dark"); }
 
-        /* =============================
-           MENSAJE DE BIENVENIDA
-        ==============================*/
+        // Mensaje de bienvenida
         window.onload = function () {
             const bienvenida = document.getElementById("bienvenida");
             bienvenida.classList.add("visible");
-
             setTimeout(() => cerrarBienvenida(), 5000);
         };
+        function cerrarBienvenida() { document.getElementById("bienvenida").classList.remove("visible"); }
 
-        function cerrarBienvenida() {
-            document.getElementById("bienvenida").classList.remove("visible");
-        }
-
+        // Escape HTML para seguridad
         function escapeHtml(text) {
             return text.replace(/[&<>"']/g, c => ({
-                "&": "&amp;",
-                "<": "&lt;",
-                ">": "&gt;",
-                "\"": "&quot;",
-                "'": "&#39;"
+                "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
             }[c]));
         }
     </script>
-
 </body>
 </html>
+
